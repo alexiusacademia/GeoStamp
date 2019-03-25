@@ -14,15 +14,15 @@ import com.asa.geostamp.databinding.ActivityMainBinding
 import java.io.File
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.Matrix
+import android.content.Context
+import android.graphics.*
 import android.net.Uri
 import android.os.Environment
 import android.support.v4.content.FileProvider
 import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
+import kotlin.math.roundToInt
 
 
 class MainActivity : AppCompatActivity() {
@@ -92,9 +92,13 @@ class MainActivity : AppCompatActivity() {
             var rotatedBitmap: Bitmap = Bitmap.createBitmap(bitmap, 0, 0,
                 bitmap.width, bitmap.height, matrix, true)
 
+            var newBitmap = drawText(this,
+                rotatedBitmap,
+                "Hello world!")
+
             // Display image
             // binding.imageView.setImageBitmap(bitmap)
-            binding.imageView.setImageBitmap(rotatedBitmap)
+            binding.imageView.setImageBitmap(newBitmap)
 
         } else {
             Toast.makeText(this, "Not good!", Toast.LENGTH_SHORT).show()
@@ -130,6 +134,40 @@ class MainActivity : AppCompatActivity() {
             // Save a file: path for use with ACTION_VIEWS intents
             mCurrentPhotoPath = absolutePath
         }
+    }
+
+    private fun drawText(context: Context, bitmap: Bitmap, text1: String, textSize: Int = 78) : Bitmap {
+        val resources = context.resources
+        val scale = resources.displayMetrics.density
+
+        var bitmapConfig = bitmap.config;
+        // set default bitmap config if none
+        if (bitmapConfig == null) {
+            bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888
+        }
+        // resource bitmaps are imutable,
+        // so we need to convert it to mutable one
+        var newBitmap = bitmap.copy(bitmapConfig, true)
+
+        val canvas = Canvas(newBitmap)
+        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
+        paint.color = Color.rgb(93, 101, 67)
+        // text size in pixels
+        paint.textSize = (textSize * scale).roundToInt().toFloat()
+
+        // text shadow
+        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
+
+        // draw text to the Canvas center
+        val bounds = Rect()
+
+        //draw the first text
+        paint.getTextBounds(text1, 0, text1.length, bounds)
+        var x = (bitmap.width - bounds.width()) / 2f - 470
+        var y = (bitmap.height + bounds.height()) / 2f - 140
+        canvas.drawText(text1, x, y, paint)
+
+        return newBitmap
     }
 
 }
