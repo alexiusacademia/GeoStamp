@@ -23,6 +23,9 @@ import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
+import android.graphics.Bitmap
+import android.util.Log
+import java.io.FileOutputStream
 
 
 class MainActivity : AppCompatActivity() {
@@ -155,17 +158,19 @@ class MainActivity : AppCompatActivity() {
         var newBitmap = bitmap.copy(bitmapConfig, true)
 
         val canvas = Canvas(newBitmap)
-        val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        paint.color = Color.rgb(255, 255, 255)
+
+        val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        bgPaint.style = Paint.Style.FILL
+
+        textPaint.color = Color.rgb(255, 255, 255)
+        bgPaint.color = Color.rgb(0, 0, 0)
 
         // text size in pixels
-        paint.textSize = (textSize * scale).roundToInt().toFloat()
+        textPaint.textSize = (textSize * scale).roundToInt().toFloat()
 
         // text shadow
-        paint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
-
-        // draw text to the Canvas center
-        val bounds = Rect()
+        textPaint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
 
         // Save the canvas state, draw text then restore
         canvas.save()
@@ -179,9 +184,23 @@ class MainActivity : AppCompatActivity() {
         canvas.drawText(text1,
             50.0f,
             -150.0f,
-            paint)
+            textPaint)
 
         canvas.restore()
+
+        // Replace the image saved by the phone camera with the
+        // stamped image
+        try {
+            val file = File(this.mCurrentPhotoPath)
+            val fOut = FileOutputStream(file)
+            newBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut)
+            fOut.flush()
+            fOut.close()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            Log.i(null, "Save file error!")
+        }
+
 
         return newBitmap
     }
