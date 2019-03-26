@@ -37,6 +37,8 @@ class MainActivity : AppCompatActivity() {
 
     private var mCurrentPhotoPath: String? = null
 
+    private var bitmapPreview: Bitmap? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // setContentView(R.layout.activity_main)
@@ -50,8 +52,15 @@ class MainActivity : AppCompatActivity() {
                 requestPermission()
             }
         }
+
+        if (savedInstanceState != null) {
+            binding.imageView.setImageBitmap(savedInstanceState?.getParcelable("bitmapPreview"))
+        }
     }
 
+    /**
+     * Checks if permissions has been granted.
+     */
     private fun checkPermission() : Boolean {
         return (ContextCompat.checkSelfPermission(this,
             android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
@@ -59,6 +68,9 @@ class MainActivity : AppCompatActivity() {
                     android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
     }
 
+    /**
+     * Request from the user for permission.
+     */
     private fun requestPermission() {
         ActivityCompat.requestPermissions(this, arrayOf(READ_EXTERNAL_STORAGE, CAMERA),
             PERMISSION_REQUEST_CODE)
@@ -136,7 +148,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, text1: String, textSize: Int = 78) : Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap, text1: String, textSize: Int = 24) : Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
@@ -151,7 +163,8 @@ class MainActivity : AppCompatActivity() {
 
         val canvas = Canvas(newBitmap)
         val paint = Paint(Paint.ANTI_ALIAS_FLAG)
-        paint.color = Color.rgb(93, 101, 67)
+        paint.color = Color.rgb(255, 255, 255)
+
         // text size in pixels
         paint.textSize = (textSize * scale).roundToInt().toFloat()
 
@@ -165,9 +178,28 @@ class MainActivity : AppCompatActivity() {
         paint.getTextBounds(text1, 0, text1.length, bounds)
         var x = (bitmap.width - bounds.width()) / 2f - 470
         var y = (bitmap.height + bounds.height()) / 2f - 140
-        canvas.drawText(text1, x, y, paint)
 
+        canvas.save()
+
+        canvas.rotate(90.0f,
+            //canvas.width / 2.0f,
+            0f,
+            //canvas.height / 2.0f
+            0f)
+
+        canvas.drawText(text1,
+            50.0f,
+            50.0f,
+            paint)
+
+        canvas.restore()
+        this.bitmapPreview = newBitmap
         return newBitmap
     }
 
+    override fun onSaveInstanceState(outState: Bundle?) {
+        super.onSaveInstanceState(outState)
+
+        outState?.putParcelable("bitmapPreview", this.bitmapPreview)
+    }
 }
