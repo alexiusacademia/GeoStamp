@@ -24,6 +24,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
+import android.media.ThumbnailUtils
 import android.util.Log
 import java.io.FileOutputStream
 
@@ -95,7 +96,7 @@ class MainActivity : AppCompatActivity() {
             val bitmap: Bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath)
 
             // Rotate image
-            var matrix: Matrix = Matrix()
+            var matrix = Matrix()
             matrix.postRotate(90.0f)
 
             var rotatedBitmap: Bitmap = Bitmap.createBitmap(bitmap, 0, 0,
@@ -106,7 +107,14 @@ class MainActivity : AppCompatActivity() {
                 "Hello world!")
 
             // Display image
-            binding.imageView.setImageBitmap(newBitmap)
+            // binding.imageView.setImageBitmap(newBitmap)
+            // Create thumbnail
+            var thumb = ThumbnailUtils.extractThumbnail(newBitmap,
+                binding.imageView.width,
+                binding.imageView.height)
+            binding.imageView.setImageBitmap(thumb)
+            Log.d("Full size: ", (newBitmap.allocationByteCount / 1_000_000).toString())
+            Log.d("Thumb size: ", (thumb.allocationByteCount / 1_000_000).toString())
 
         } else {
             Toast.makeText(this, "Not good!", Toast.LENGTH_SHORT).show()
