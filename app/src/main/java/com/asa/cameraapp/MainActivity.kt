@@ -14,6 +14,8 @@ import com.asa.geostamp.databinding.ActivityMainBinding
 import java.io.File
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
+import android.Manifest.permission.ACCESS_FINE_LOCATION
+import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.content.Context
 import android.graphics.*
 import android.net.Uri
@@ -52,20 +54,20 @@ class MainActivity : AppCompatActivity() {
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
-        fusedLocationClient.lastLocation
-            .addOnSuccessListener {
-                if (it != null) {
-                    Log.d("Latitude", it.latitude.toString())
-                    Log.d("Longitude", it.longitude.toString())
-                } else {
-                    Log.d("Location message: ", "Cannot access location!")
-                }
-            }
-
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         binding.btnCapture.setOnClickListener {
             if (checkPermission()) {
+                fusedLocationClient.lastLocation
+                    .addOnSuccessListener {
+                        if (it != null) {
+                            Log.d("Latitude", it.latitude.toString())
+                            Log.d("Longitude", it.longitude.toString())
+                        } else {
+                            Log.d("Location message: ", "Cannot access location!")
+                        }
+                    }
+
                 takePicture()
             } else {
                 requestPermission()
@@ -76,19 +78,34 @@ class MainActivity : AppCompatActivity() {
     /**
      * Checks if permissions has been granted.
      */
-    private fun checkPermission() : Boolean {
-        return (ContextCompat.checkSelfPermission(this,
-            android.Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(this,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
+    private fun checkPermission(): Boolean {
+        return (ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.CAMERA
+        ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED)
     }
 
     /**
      * Request from the user for permission.
      */
     private fun requestPermission() {
-        ActivityCompat.requestPermissions(this, arrayOf(READ_EXTERNAL_STORAGE, CAMERA),
-            PERMISSION_REQUEST_CODE)
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(READ_EXTERNAL_STORAGE, CAMERA, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
+            PERMISSION_REQUEST_CODE
+        )
     }
 
     private fun takePicture() {
@@ -116,19 +133,25 @@ class MainActivity : AppCompatActivity() {
             var matrix = Matrix()
             matrix.postRotate(90.0f)
 
-            var rotatedBitmap: Bitmap = Bitmap.createBitmap(bitmap, 0, 0,
-                bitmap.width, bitmap.height, matrix, true)
+            var rotatedBitmap: Bitmap = Bitmap.createBitmap(
+                bitmap, 0, 0,
+                bitmap.width, bitmap.height, matrix, true
+            )
 
-            var newBitmap = drawText(this,
+            var newBitmap = drawText(
+                this,
                 rotatedBitmap,
-                "Hello world!")
+                "Hello world!"
+            )
 
             // Display image
             // binding.imageView.setImageBitmap(newBitmap)
             // Create thumbnail
-            var thumb = ThumbnailUtils.extractThumbnail(newBitmap,
+            var thumb = ThumbnailUtils.extractThumbnail(
+                newBitmap,
                 binding.imageView.width,
-                binding.imageView.height)
+                binding.imageView.height
+            )
             binding.imageView.setImageBitmap(thumb)
             Log.d("Full size: ", (newBitmap.allocationByteCount / 1_000_000).toString())
             Log.d("Thumb size: ", (thumb.allocationByteCount / 1_000_000).toString())
@@ -142,7 +165,8 @@ class MainActivity : AppCompatActivity() {
         when (requestCode) {
             PERMISSION_REQUEST_CODE -> {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) &&
-                        grantResults[1] == PackageManager.PERMISSION_GRANTED) {
+                    grantResults[1] == PackageManager.PERMISSION_GRANTED
+                ) {
                     takePicture()
                 } else {
                     Toast.makeText(this, "Permission Denied!", Toast.LENGTH_LONG).show()
@@ -156,7 +180,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     @Throws(IOException::class)
-    private fun createFile() : File {
+    private fun createFile(): File {
         val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
         val storageDir: File = getExternalFilesDir(Environment.DIRECTORY_PICTURES)
         return File.createTempFile(
@@ -169,7 +193,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, text1: String, textSize: Int = 24) : Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap, text1: String, textSize: Int = 24): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
@@ -200,16 +224,20 @@ class MainActivity : AppCompatActivity() {
         // Save the canvas state, draw text then restore
         canvas.save()
 
-        canvas.rotate(90.0f,
+        canvas.rotate(
+            90.0f,
             //canvas.width / 2.0f,
             0f,
             //canvas.height / 2.0f
-            0f)
+            0f
+        )
 
-        canvas.drawText(text1,
+        canvas.drawText(
+            text1,
             50.0f,
             -150.0f,
-            textPaint)
+            textPaint
+        )
 
         canvas.restore()
 
