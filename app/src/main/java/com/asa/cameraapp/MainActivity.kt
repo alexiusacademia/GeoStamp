@@ -24,8 +24,11 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
+import android.location.Location
 import android.media.ThumbnailUtils
 import android.util.Log
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import java.io.FileOutputStream
 
 
@@ -41,9 +44,23 @@ class MainActivity : AppCompatActivity() {
 
     private var mCurrentPhotoPath: String? = null
 
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // setContentView(R.layout.activity_main)
+
+        fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        fusedLocationClient.lastLocation
+            .addOnSuccessListener {
+                if (it != null) {
+                    Log.d("Latitude", it.latitude.toString())
+                    Log.d("Longitude", it.longitude.toString())
+                } else {
+                    Log.d("Location message: ", "Cannot access location!")
+                }
+            }
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
