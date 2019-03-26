@@ -37,8 +37,6 @@ class MainActivity : AppCompatActivity() {
 
     private var mCurrentPhotoPath: String? = null
 
-    private var bitmapPreview: Bitmap? = null
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // setContentView(R.layout.activity_main)
@@ -51,10 +49,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 requestPermission()
             }
-        }
-
-        if (savedInstanceState != null) {
-            binding.imageView.setImageBitmap(savedInstanceState?.getParcelable("bitmapPreview"))
         }
     }
 
@@ -109,7 +103,6 @@ class MainActivity : AppCompatActivity() {
                 "Hello world!")
 
             // Display image
-            // binding.imageView.setImageBitmap(bitmap)
             binding.imageView.setImageBitmap(newBitmap)
 
         } else {
@@ -174,11 +167,7 @@ class MainActivity : AppCompatActivity() {
         // draw text to the Canvas center
         val bounds = Rect()
 
-        //draw the first text
-        paint.getTextBounds(text1, 0, text1.length, bounds)
-        var x = (bitmap.width - bounds.width()) / 2f - 470
-        var y = (bitmap.height + bounds.height()) / 2f - 140
-
+        // Save the canvas state, draw text then restore
         canvas.save()
 
         canvas.rotate(90.0f,
@@ -189,17 +178,11 @@ class MainActivity : AppCompatActivity() {
 
         canvas.drawText(text1,
             50.0f,
-            50.0f,
+            -150.0f,
             paint)
 
         canvas.restore()
-        this.bitmapPreview = newBitmap
+
         return newBitmap
-    }
-
-    override fun onSaveInstanceState(outState: Bundle?) {
-        super.onSaveInstanceState(outState)
-
-        outState?.putParcelable("bitmapPreview", this.bitmapPreview)
     }
 }
