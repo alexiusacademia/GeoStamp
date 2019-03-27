@@ -156,6 +156,12 @@ class MainActivity : AppCompatActivity() {
             "com.asa.geostamp.fileprovider",
             file
         )
+
+        // Get the current time the photo was taken
+        val sdf = SimpleDateFormat("MM/dd/yyyy - hh:mm:ss")
+        val currDate = sdf.format(Date())
+        mTime = currDate.toString()
+
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
     }
@@ -165,7 +171,6 @@ class MainActivity : AppCompatActivity() {
 
         if (requestCode == REQUEST_IMAGE_CAPTURE && resultCode == Activity.RESULT_OK) {
 
-            // val auxFile = File(mCurrentPhotoPath)
             val bitmap: Bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath)
 
             // Rotate image
@@ -181,6 +186,11 @@ class MainActivity : AppCompatActivity() {
                 this,
                 rotatedBitmap
             )
+
+            val f = File(mCurrentPhotoPath)
+            if (f.exists()) {
+                f.delete()
+            }
 
             // Display image
             // binding.imageView.setImageBitmap(newBitmap)
@@ -199,11 +209,6 @@ class MainActivity : AppCompatActivity() {
             if (binding.btnSave.visibility != View.VISIBLE) {
                 binding.btnSave.visibility = View.VISIBLE
             }
-
-            // Get the current time the photo was taken
-            val sdf = SimpleDateFormat("MM/dd/yyyy - hh:mm:ss")
-            val currDate = sdf.format(Date())
-            mTime = currDate.toString()
 
         } else {
             Toast.makeText(this, "Capture cancelled.", Toast.LENGTH_SHORT).show()
@@ -350,10 +355,9 @@ class MainActivity : AppCompatActivity() {
                 // when the task is completed, make progressBar gone
                 this@MainActivity.runOnUiThread {
                     binding.progressSaving.visibility = View.GONE
+                    Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
                 }
             }).start()
-
-            Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
             Log.i(null, "Save file error!")
@@ -387,4 +391,6 @@ class MainActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
+
+    // TODO: Edit exif
 }
