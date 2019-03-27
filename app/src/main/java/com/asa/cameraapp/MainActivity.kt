@@ -50,13 +50,16 @@ class MainActivity : AppCompatActivity() {
 
     private var mLat: Double = 0.0
     private var mLong: Double = 0.0
+    private var mTime: String = ""
+
+    private var mFinalImage: Bitmap? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // setContentView(R.layout.activity_main)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
+        // Create data binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
         binding.textWaiting.text = "Waiting for GPS data..."
@@ -69,16 +72,19 @@ class MainActivity : AppCompatActivity() {
                         Log.d("Longitude", it.longitude.toString())
                         this.mLat = it.latitude
                         this.mLong = it.longitude
-
-                        binding.btnCapture.visibility = View.VISIBLE
-
-                        binding.textWaiting.visibility = View.GONE
                     } else {
                         Log.d("Location message: ", "Cannot access location!")
                     }
                 }
+
+            binding.textWaiting.visibility = View.GONE
+            binding.btnCapture.visibility = View.VISIBLE
+
         } else {
             requestPermission()
+            if (checkPermission()) {
+                binding.textWaiting.visibility = View.GONE
+            }
         }
 
         binding.btnCapture.setOnClickListener {
@@ -86,14 +92,10 @@ class MainActivity : AppCompatActivity() {
                 fusedLocationClient.lastLocation
                     .addOnSuccessListener {
                         if (it != null) {
-                            Log.d("Latitude", it.latitude.toString())
-                            Log.d("Longitude", it.longitude.toString())
+                            Log.d("Coord. Latitude", it.latitude.toString())
+                            Log.d("Coord. Longitude", it.longitude.toString())
                             this.mLat = it.latitude
                             this.mLong = it.longitude
-
-                            // binding.textWaiting.visibility = View.INVISIBLE
-
-                            binding.btnCapture.visibility = View.VISIBLE
                         } else {
                             Log.d("Location message: ", "Cannot access location!")
                         }
@@ -102,6 +104,12 @@ class MainActivity : AppCompatActivity() {
                 takePicture()
             } else {
                 requestPermission()
+            }
+        }
+
+        binding.btnSave.setOnClickListener {
+            if (checkPermission()) {
+                saveFile()
             }
         }
     }
@@ -182,12 +190,23 @@ class MainActivity : AppCompatActivity() {
                 binding.imageView.width,
                 binding.imageView.height
             )
+
             binding.imageView.setImageBitmap(thumb)
-            Log.d("Full size: ", (newBitmap.allocationByteCount / 1_000_000).toString())
-            Log.d("Thumb size: ", (thumb.allocationByteCount / 1_000_000).toString())
+
+            if (binding.textWaiting.visibility == View.VISIBLE) {
+                binding.textWaiting.visibility = View.GONE
+            }
+            if (binding.btnSave.visibility != View.VISIBLE) {
+                binding.btnSave.visibility = View.VISIBLE
+            }
+
+            // Get the current time the photo was taken
+            val sdf = SimpleDateFormat("MM/dd/yyyy - hh:mm:ss")
+            val currDate = sdf.format(Date())
+            mTime = currDate.toString()
 
         } else {
-            Toast.makeText(this, "Not good!", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "Capture cancelled.", Toast.LENGTH_SHORT).show()
         }
     }
 
@@ -197,7 +216,10 @@ class MainActivity : AppCompatActivity() {
                 if ((grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) &&
                     grantResults[1] == PackageManager.PERMISSION_GRANTED
                 ) {
-                    takePicture()
+                    // takePicture()
+                    binding.textWaiting.visibility = View.GONE
+                    binding.btnCapture.visibility = View.VISIBLE
+                    binding.btnSave.visibility = View.VISIBLE
                 } else {
                     Toast.makeText(this, "Permission Denied!", Toast.LENGTH_LONG).show()
                 }
@@ -223,7 +245,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 24): Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 28): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
@@ -244,6 +266,7 @@ class MainActivity : AppCompatActivity() {
 
         val textLat = "Latitude: " + this.mLat.toString()
         val textLong = "Longitude: " + this.mLong.toString()
+        val textTime = mTime
 
         textPaint.color = Color.rgb(255, 255, 255)
         bgPaint.color = Color.argb(50, 0, 0, 0)
@@ -258,7 +281,7 @@ class MainActivity : AppCompatActivity() {
         canvas.drawRect(0f,
             0f,
             canvas.width / 4f,
-            canvas.height / 5f,
+            canvas.height / 4.5f,
             bgPaint)
 
         // Save the canvas state, draw text then restore
@@ -266,12 +289,11 @@ class MainActivity : AppCompatActivity() {
 
         canvas.rotate(
             90.0f,
-            //canvas.width / 2.0f,
             0f,
-            //canvas.height / 2.0f
             0f
         )
 
+        // Draw the texts to be displayed
         canvas.drawText(
             textLat,
             50.0f,
@@ -279,22 +301,90 @@ class MainActivity : AppCompatActivity() {
             textPaint
         )
 
+        canvas.drawText(
+            textLong,
+            50.0f,
+            -250.0f,
+            textPaint
+        )
+
+        canvas.drawText(
+            textTime,
+            50.0f,
+            -350.0f,
+            textPaint
+        )
+
         canvas.restore()
 
+        mFinalImage = newBitmap
+
+        return newBitmap
+    }
+
+    private fun saveFile() {
         // Replace the image saved by the phone camera with the
         // stamped image
+
         try {
-            val file = File(this.mCurrentPhotoPath)
-            val fOut = FileOutputStream(file)
-            newBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut)
-            fOut.flush()
-            fOut.close()
+            // task is run on a thread
+            Thread(Runnable {
+                // dummy thread mimicking some operation whose progress cannot be tracked
+
+                // display the indefinite progressbar
+                this@MainActivity.runOnUiThread {
+                    binding.progressSaving.visibility = View.VISIBLE
+                }
+
+                // operation
+                try {
+                    val file = File(this.mCurrentPhotoPath)
+                    val fOut = FileOutputStream(file)
+                    mFinalImage?.compress(Bitmap.CompressFormat.PNG, 85, fOut)
+                    fOut.flush()
+                    fOut.close()
+                } catch (e: InterruptedException) {
+                    e.printStackTrace()
+                }
+
+                // when the task is completed, make progressBar gone
+                this@MainActivity.runOnUiThread {
+                    binding.progressSaving.visibility = View.GONE
+                }
+            }).start()
+
+            Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
         } catch (e: Exception) {
             e.printStackTrace()
             Log.i(null, "Save file error!")
         }
+    }
 
+    override fun onWindowFocusChanged(hasFocus: Boolean) {
+        super.onWindowFocusChanged(hasFocus)
+        if (hasFocus) hideSystemUI()
+    }
 
-        return newBitmap
+    private fun hideSystemUI() {
+        // Enables regular immersive mode.
+        // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
+        // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                // Set the content to appear under the system bars so that the
+                // content doesn't resize when the system bars hide and show.
+                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                // Hide the nav bar and status bar
+                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+    }
+
+    // Shows the system bars by removing all the flags
+    // except for the ones that make the content appear under the system bars.
+    private fun showSystemUI() {
+        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 }
