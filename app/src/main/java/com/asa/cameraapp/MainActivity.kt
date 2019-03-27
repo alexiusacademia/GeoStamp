@@ -26,9 +26,9 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
-import android.location.Location
 import android.media.ThumbnailUtils
 import android.util.Log
+import android.view.View
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.io.FileOutputStream
@@ -48,6 +48,9 @@ class MainActivity : AppCompatActivity() {
 
     private lateinit var fusedLocationClient: FusedLocationProviderClient
 
+    private var mLat: Double = 0.0
+    private var mLong: Double = 0.0
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         // setContentView(R.layout.activity_main)
@@ -56,6 +59,28 @@ class MainActivity : AppCompatActivity() {
 
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
+        binding.textWaiting.text = "Waiting for GPS data..."
+
+        if (checkPermission()) {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener {
+                    if (it != null) {
+                        Log.d("Latitude", it.latitude.toString())
+                        Log.d("Longitude", it.longitude.toString())
+                        this.mLat = it.latitude
+                        this.mLong = it.longitude
+
+                        binding.btnCapture.visibility = View.VISIBLE
+
+                        binding.textWaiting.visibility = View.GONE
+                    } else {
+                        Log.d("Location message: ", "Cannot access location!")
+                    }
+                }
+        } else {
+            requestPermission()
+        }
+
         binding.btnCapture.setOnClickListener {
             if (checkPermission()) {
                 fusedLocationClient.lastLocation
@@ -63,6 +88,12 @@ class MainActivity : AppCompatActivity() {
                         if (it != null) {
                             Log.d("Latitude", it.latitude.toString())
                             Log.d("Longitude", it.longitude.toString())
+                            this.mLat = it.latitude
+                            this.mLong = it.longitude
+
+                            // binding.textWaiting.visibility = View.INVISIBLE
+
+                            binding.btnCapture.visibility = View.VISIBLE
                         } else {
                             Log.d("Location message: ", "Cannot access location!")
                         }
@@ -140,8 +171,7 @@ class MainActivity : AppCompatActivity() {
 
             var newBitmap = drawText(
                 this,
-                rotatedBitmap,
-                "Hello world!"
+                rotatedBitmap
             )
 
             // Display image
@@ -193,7 +223,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, text1: String, textSize: Int = 24): Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 24): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
@@ -212,14 +242,24 @@ class MainActivity : AppCompatActivity() {
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         bgPaint.style = Paint.Style.FILL
 
+        val textLat = "Latitude: " + this.mLat.toString()
+        val textLong = "Longitude: " + this.mLong.toString()
+
         textPaint.color = Color.rgb(255, 255, 255)
-        bgPaint.color = Color.rgb(0, 0, 0)
+        bgPaint.color = Color.argb(50, 0, 0, 0)
+        bgPaint.style = Paint.Style.FILL
 
         // text size in pixels
         textPaint.textSize = (textSize * scale).roundToInt().toFloat()
 
         // text shadow
         textPaint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
+
+        canvas.drawRect(0f,
+            0f,
+            canvas.width / 4f,
+            canvas.height / 5f,
+            bgPaint)
 
         // Save the canvas state, draw text then restore
         canvas.save()
@@ -233,7 +273,7 @@ class MainActivity : AppCompatActivity() {
         )
 
         canvas.drawText(
-            text1,
+            textLat,
             50.0f,
             -150.0f,
             textPaint
