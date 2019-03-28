@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
+import android.location.Location
 import android.media.ExifInterface
 import android.media.ThumbnailUtils
 import android.util.Log
@@ -33,6 +34,7 @@ import android.view.View
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.io.FileOutputStream
+import kotlin.math.absoluteValue
 
 
 class MainActivity : AppCompatActivity() {
@@ -56,6 +58,8 @@ class MainActivity : AppCompatActivity() {
 
     private var mFinalImage: Bitmap? = null
 
+    private var mLocation: Location? = null
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -70,10 +74,9 @@ class MainActivity : AppCompatActivity() {
             fusedLocationClient.lastLocation
                 .addOnSuccessListener {
                     if (it != null) {
-                        Log.d("Latitude", it.latitude.toString())
-                        Log.d("Longitude", it.longitude.toString())
                         this.mLat = it.latitude
                         this.mLong = it.longitude
+                        mLocation = it
                     } else {
                         Log.d("Location message: ", "Cannot access location!")
                     }
@@ -94,10 +97,9 @@ class MainActivity : AppCompatActivity() {
                 fusedLocationClient.lastLocation
                     .addOnSuccessListener {
                         if (it != null) {
-                            Log.d("Coord. Latitude", it.latitude.toString())
-                            Log.d("Coord. Longitude", it.longitude.toString())
                             this.mLat = it.latitude
                             this.mLong = it.longitude
+                            mLocation = it
                         } else {
                             Log.d("Location message: ", "Cannot access location!")
                         }
@@ -195,6 +197,7 @@ class MainActivity : AppCompatActivity() {
                 rotatedBitmap
             )
 
+            // Delete the original file saved by the camera
             val f = File(mCurrentPhotoPath)
             if (f.exists()) {
                 f.delete()
@@ -342,14 +345,12 @@ class MainActivity : AppCompatActivity() {
         try {
             // task is run on a thread
             Thread(Runnable {
-                // dummy thread mimicking some operation whose progress cannot be tracked
-
-                // display the indefinite progressbar
+                // Display the indefinite progressbar
                 this@MainActivity.runOnUiThread {
                     binding.progressSaving.visibility = View.VISIBLE
                 }
 
-                // operation
+                // Operation
                 try {
                     val file = File(this.mCurrentPhotoPath)
                     val fOut = FileOutputStream(file)
@@ -362,39 +363,20 @@ class MainActivity : AppCompatActivity() {
                     e.printStackTrace()
                 }
 
-                // when the task is completed, make progressBar gone
+                // Hide the progress bar after saving the file
                 this@MainActivity.runOnUiThread {
                     binding.progressSaving.visibility = View.GONE
                     Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
                     galleryAddPic()
 
-                    val file = File(mCurrentPhotoPath)
-                    if (file.exists()) {
-                        Log.d("File exist", "File exists...")
-                        try {
-                            val exif = ExifInterface(mCurrentPhotoPath)
-
-                            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, decToDMS(mLat))
-                            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, decToDMS(mLong))
-                            Log.i("GPS:", decToDMS(mLong) + ", " + decToDMS(mLat))
-                            // exif.setAttribute(ExifInterface.TAG_DATETIME, mTimeExif)
-                            exif.saveAttributes()
-                        } catch (e: Exception) {
-                            Log.e("EXIF Exception", e.message.toString())
-                        }
-                    } else {
-                        Log.e("File Problem", "File does not exist!")
-                    }
+                    // Tag the photo
+                    tagImage()
                 }
             }).start()
         } catch (e: Exception) {
             e.printStackTrace()
             Log.i(null, "Save file error!")
         }
-
-        // TODO: File cannot be found during exif editing
-
-
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -456,5 +438,37 @@ class MainActivity : AppCompatActivity() {
             mediaScanIntent.data = Uri.fromFile(f)
             sendBroadcast(mediaScanIntent)
         }
+    }
+
+    private fun tagImage() {
+        saveExifData(mCurrentPhotoPath.toString(),
+            mLat,
+            mLong)
+    }
+
+    /**
+     * Converts a latitude or longitude to the appropriate
+     * string value that the GPS Exif will accept.
+     */
+    private fun gpsToDMS(data: Double): String {
+        val degMinSec = Location.convert(data, Location.FORMAT_SECONDS).split(":")
+
+        val degrees = degMinSec[0].toInt().absoluteValue
+        val seconds = (degMinSec[2].toDouble() * 10000).roundToInt()
+        return "$degrees/1,${degMinSec[1]}/1,$seconds/10000"
+    }
+
+    /**
+     * Save the exif data to the image file
+     */
+    private fun saveExifData(mediaFilePath: String, lat: Double, lon: Double) {
+        val exif = ExifInterface(mediaFilePath)
+
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, gpsToDMS(lat))
+        exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, if (lat < 0) "S" else "N")
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, gpsToDMS(lon))
+        exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, if (lon < 0) "W" else "E")
+
+        exif.saveAttributes()
     }
 }
