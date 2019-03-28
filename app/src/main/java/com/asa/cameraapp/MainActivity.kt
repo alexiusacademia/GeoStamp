@@ -357,6 +357,7 @@ class MainActivity : AppCompatActivity() {
 
                     fOut.flush()
                     fOut.close()
+
                 } catch (e: InterruptedException) {
                     e.printStackTrace()
                 }
@@ -365,6 +366,25 @@ class MainActivity : AppCompatActivity() {
                 this@MainActivity.runOnUiThread {
                     binding.progressSaving.visibility = View.GONE
                     Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
+                    galleryAddPic()
+
+                    val file = File(mCurrentPhotoPath)
+                    if (file.exists()) {
+                        Log.d("File exist", "File exists...")
+                        try {
+                            val exif = ExifInterface(mCurrentPhotoPath)
+
+                            exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, decToDMS(mLat))
+                            exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, decToDMS(mLong))
+                            Log.i("GPS:", decToDMS(mLong) + ", " + decToDMS(mLat))
+                            // exif.setAttribute(ExifInterface.TAG_DATETIME, mTimeExif)
+                            exif.saveAttributes()
+                        } catch (e: Exception) {
+                            Log.e("EXIF Exception", e.message.toString())
+                        }
+                    } else {
+                        Log.e("File Problem", "File does not exist!")
+                    }
                 }
             }).start()
         } catch (e: Exception) {
@@ -372,22 +392,8 @@ class MainActivity : AppCompatActivity() {
             Log.i(null, "Save file error!")
         }
 
-        val file = File(mCurrentPhotoPath)
-
         // TODO: File cannot be found during exif editing
-        if (file.exists()) {
-            try {
-                val exif = ExifInterface(mCurrentPhotoPath)
-                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, decToDMS(mLat))
-                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, decToDMS(mLong))
-                // exif.setAttribute(ExifInterface.TAG_DATETIME, mTimeExif)
-                exif.saveAttributes()
-            } catch (e: Exception) {
-                Log.e("EXIF Exception", e.message.toString())
-            }
-        } else {
-            Log.e("File Problem", "File does not exist!")
-        }
+
 
     }
 
@@ -425,14 +431,30 @@ class MainActivity : AppCompatActivity() {
             c *= -1
         }
 
-        var sOut: String = c.toInt().toString() + "/1,"
-        c -= c.toInt()  * 60
-        sOut += c.toInt().toString() + "/1,"
-        c -= c.toInt() * 60_000
-        sOut += c.toString() + "/1000"
+        var tempI = c.toInt()           // Hour
+        var tempD = (c - tempI) * 60
+
+        var sOut: String = tempI.toString() + "/1,"
+        tempI = tempD.toInt()           // Minutes
+        tempD -= tempI
+
+        sOut += tempI.toString() + "/1,"
+
+        tempI = (tempD * 60_000).toInt()
+
+        sOut += tempI.toString() + "/1000"
 
         return sOut
     }
 
     // TODO: Edit exif
+
+    // Make the photo available in gallery
+    private fun galleryAddPic() {
+        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
+            val f = File(mCurrentPhotoPath)
+            mediaScanIntent.data = Uri.fromFile(f)
+            sendBroadcast(mediaScanIntent)
+        }
+    }
 }
