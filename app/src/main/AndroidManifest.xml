@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.asa.geostamp">
+          package="com.asa.geostamp2">
 
     <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
@@ -16,7 +16,7 @@
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
 
-        <activity android:name="com.asa.geostamp.MainActivity"
+        <activity android:name="com.asa.geostamp2.MainActivity"
                 android:screenOrientation="portrait"
                 android:theme="@style/Theme.AppCompat.NoActionBar">
             <intent-filter>
@@ -26,7 +26,7 @@
             </intent-filter>
         </activity>
 
-        <provider   android:authorities="com.asa.geostamp.fileprovider"
+        <provider   android:authorities="com.asa.geostamp2.fileprovider"
                     android:name="android.support.v4.content.FileProvider"
                     android:exported="false"
                     android:grantUriPermissions="true">
