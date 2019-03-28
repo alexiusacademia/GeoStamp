@@ -1,4 +1,4 @@
-package com.asa.cameraapp
+package com.alexiusacademia.cameraapp
 
 import org.junit.Test
 

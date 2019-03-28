@@ -1,4 +1,4 @@
-package com.asa.cameraapp
+package com.alexiusacademia.cameraapp
 
 import android.support.test.InstrumentationRegistry
 import android.support.test.runner.AndroidJUnit4

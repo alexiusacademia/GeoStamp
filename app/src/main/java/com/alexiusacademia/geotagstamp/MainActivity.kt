@@ -1,4 +1,4 @@
-package com.asa.geostamp2
+package com.alexiusacademia.geotagstamp
 
 import android.app.Activity
 import android.content.Intent
@@ -10,7 +10,7 @@ import android.provider.MediaStore
 import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
-import com.asa.geostamp2.databinding.ActivityMainBinding
+import com.alexiusacademia.geotagstamp.databinding.ActivityMainBinding
 import java.io.File
 import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
@@ -157,7 +157,7 @@ class MainActivity : AppCompatActivity() {
 
         val uri: Uri = FileProvider.getUriForFile(
             this,
-            "com.asa.geostamp2.fileprovider",
+            "com.alexiusacademia.geotagstamp.fileprovider",
             file
         )
 
