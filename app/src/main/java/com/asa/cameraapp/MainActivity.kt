@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
+import android.media.ExifInterface
 import android.media.ThumbnailUtils
 import android.util.Log
 import android.view.View
@@ -51,6 +52,7 @@ class MainActivity : AppCompatActivity() {
     private var mLat: Double = 0.0
     private var mLong: Double = 0.0
     private var mTime: String = ""
+    private var mTimeExif: String = ""
 
     private var mFinalImage: Bitmap? = null
 
@@ -157,10 +159,16 @@ class MainActivity : AppCompatActivity() {
             file
         )
 
+        val date = Date()
+
         // Get the current time the photo was taken
         val sdf = SimpleDateFormat("MM/dd/yyyy - hh:mm:ss")
-        val currDate = sdf.format(Date())
+        val currDate = sdf.format(date)
         mTime = currDate.toString()
+
+        val sdf2 = SimpleDateFormat("yyyy:MM:dd hh:mm:ss")
+        val currDateExif = sdf2.format(date)
+        mTimeExif = currDateExif.toString()
 
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
@@ -345,7 +353,8 @@ class MainActivity : AppCompatActivity() {
                 try {
                     val file = File(this.mCurrentPhotoPath)
                     val fOut = FileOutputStream(file)
-                    mFinalImage?.compress(Bitmap.CompressFormat.PNG, 85, fOut)
+                    mFinalImage?.compress(Bitmap.CompressFormat.JPEG, 100, fOut)
+
                     fOut.flush()
                     fOut.close()
                 } catch (e: InterruptedException) {
@@ -362,6 +371,24 @@ class MainActivity : AppCompatActivity() {
             e.printStackTrace()
             Log.i(null, "Save file error!")
         }
+
+        val file = File(mCurrentPhotoPath)
+
+        // TODO: File cannot be found during exif editing
+        if (file.exists()) {
+            try {
+                val exif = ExifInterface(mCurrentPhotoPath)
+                exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE, decToDMS(mLat))
+                exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, decToDMS(mLong))
+                // exif.setAttribute(ExifInterface.TAG_DATETIME, mTimeExif)
+                exif.saveAttributes()
+            } catch (e: Exception) {
+                Log.e("EXIF Exception", e.message.toString())
+            }
+        } else {
+            Log.e("File Problem", "File does not exist!")
+        }
+
     }
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
@@ -390,6 +417,21 @@ class MainActivity : AppCompatActivity() {
         window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
+    }
+
+    private fun decToDMS(coord: Double) : String {
+        var c = coord
+        if (c < 0) {
+            c *= -1
+        }
+
+        var sOut: String = c.toInt().toString() + "/1,"
+        c -= c.toInt()  * 60
+        sOut += c.toInt().toString() + "/1,"
+        c -= c.toInt() * 60_000
+        sOut += c.toString() + "/1000"
+
+        return sOut
     }
 
     // TODO: Edit exif
