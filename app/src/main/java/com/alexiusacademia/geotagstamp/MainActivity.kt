@@ -366,7 +366,7 @@ class MainActivity : AppCompatActivity() {
 
                     // Hide the progress bar after saving the file
                     this@MainActivity.runOnUiThread {
-                        binding.progressSaving.visibility = View.GONE
+                        binding.progressSaving.visibility = View.INVISIBLE
                         Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
                         galleryAddPic()
 
@@ -380,8 +380,8 @@ class MainActivity : AppCompatActivity() {
             }
         } else {
             Toast.makeText(this,
-                "There is no available image to tag.\nPlease take another picture.",
-                Toast.LENGTH_SHORT).show()
+                "There is no available image to tag yet.\nPlease take a picture.",
+                Toast.LENGTH_LONG).show()
         }
 
     }
@@ -435,8 +435,6 @@ class MainActivity : AppCompatActivity() {
 
         return sOut
     }
-
-    // TODO: Edit exif
 
     // Make the photo available in gallery
     private fun galleryAddPic() {
