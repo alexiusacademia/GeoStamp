@@ -29,6 +29,7 @@ import android.graphics.Bitmap
 import android.location.Location
 import android.media.ExifInterface
 import android.media.ThumbnailUtils
+import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -40,8 +41,6 @@ import kotlin.math.absoluteValue
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
-
-    private val CAMERA_START = 0
 
     val REQUEST_IMAGE_CAPTURE = 1
 
@@ -63,11 +62,18 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
+        // Get the default preferences
+        PreferenceManager.setDefaultValues(this,
+            R.xml.preferences_layout, false)
+
+        // Define the fused location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Create data binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
 
+        // Sets the text waiting message while the phone
+        // is waiting for the GPS data
         binding.textWaiting.text = "Waiting for GPS data..."
 
         if (checkPermission()) {
