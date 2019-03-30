@@ -116,6 +116,10 @@ class MainActivity : AppCompatActivity() {
                 saveFile()
             }
         }
+
+        binding.btnSettings.setOnClickListener {
+            openSettingsActivity()
+        }
     }
 
     /**
@@ -265,6 +269,8 @@ class MainActivity : AppCompatActivity() {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
+        var displayTime = true
+
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
         if (bitmapConfig == null) {
@@ -324,12 +330,14 @@ class MainActivity : AppCompatActivity() {
             textPaint
         )
 
-        canvas.drawText(
-            textTime,
-            50.0f,
-            -350.0f,
-            textPaint
-        )
+        if (displayTime) {
+            canvas.drawText(
+                textTime,
+                50.0f,
+                -350.0f,
+                textPaint
+            )
+        }
 
         canvas.restore()
 
@@ -388,7 +396,7 @@ class MainActivity : AppCompatActivity() {
 
     override fun onWindowFocusChanged(hasFocus: Boolean) {
         super.onWindowFocusChanged(hasFocus)
-        if (hasFocus) hideSystemUI()
+        if (hasFocus) hideSystemUI() else showSystemUI()
     }
 
     private fun hideSystemUI() {
@@ -414,28 +422,6 @@ class MainActivity : AppCompatActivity() {
                 or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN)
     }
 
-    private fun decToDMS(coord: Double) : String {
-        var c = coord
-        if (c < 0) {
-            c *= -1
-        }
-
-        var tempI = c.toInt()           // Hour
-        var tempD = (c - tempI) * 60
-
-        var sOut: String = tempI.toString() + "/1,"
-        tempI = tempD.toInt()           // Minutes
-        tempD -= tempI
-
-        sOut += tempI.toString() + "/1,"
-
-        tempI = (tempD * 60_000).toInt()
-
-        sOut += tempI.toString() + "/1000"
-
-        return sOut
-    }
-
     // Make the photo available in gallery
     private fun galleryAddPic() {
         Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
@@ -445,6 +431,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Calling the exif tagging
+     */
     private fun tagImage() {
         saveExifData(mCurrentPhotoPath.toString(),
             mLat,
@@ -483,5 +472,10 @@ class MainActivity : AppCompatActivity() {
         exif.setAttribute(ExifInterface.TAG_DATETIME, timeExif)
 
         exif.saveAttributes()
+    }
+
+    private fun openSettingsActivity() {
+        val settingsIntent = Intent(this, SettingsActivity::class.java)
+        startActivity(settingsIntent)
     }
 }

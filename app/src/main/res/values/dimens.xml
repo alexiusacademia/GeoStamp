@@ -2,4 +2,5 @@
 <resources>
     <dimen name="progress_bar">50dp</dimen>
     <dimen name="btn_dim">50dp</dimen>
+    <dimen name="btn_padding_side">20dp</dimen>
 </resources>
