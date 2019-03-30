@@ -79,4 +79,5 @@
     <string name="pref_title_vibrate">Vibrate</string>
     <string name="cd_settings">Settings Button</string>
     <string name="pref_summary_datetime">Shows the date and time in the image stamp in the preferred format.</string>
+    <string name="pref_category_general">General Settings</string>
 </resources>
