@@ -1,10 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.preference.PreferenceScreen
+<PreferenceScreen
         xmlns:android="http://schemas.android.com/apk/res/android">
 
     <PreferenceCategory
             android:title="@string/pref_category_general">
-        <CheckBoxPreference
+        <SwitchPreferenceCompat
                 android:title="@string/pref_show_date_stamp"
                 android:key="pref_datetime"
                 android:summary="@string/pref_summary_datetime"
@@ -13,4 +13,4 @@
     </PreferenceCategory>
 
 
-</androidx.preference.PreferenceScreen>
+</PreferenceScreen>
