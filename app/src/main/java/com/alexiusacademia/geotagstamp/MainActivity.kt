@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity() {
     private var mLocation: Location? = null
 
     private var mDisplayTime: Boolean = false
+    private var mStampLocation: String = ""
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -138,9 +139,10 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        // Retrieve the preferences values
         mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
-        Toast.makeText(this, mDisplayTime.toString(), Toast.LENGTH_SHORT).show()
-
+        mStampLocation = sharedPreferences.getString("pref_stamp_location", "Lower Left")
+        Toast.makeText(this, mStampLocation.toString(), Toast.LENGTH_SHORT).show()
     }
 
     /**
@@ -290,8 +292,6 @@ class MainActivity : AppCompatActivity() {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
-        var displayTime = true
-
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
         if (bitmapConfig == null) {
@@ -351,7 +351,7 @@ class MainActivity : AppCompatActivity() {
             textPaint
         )
 
-        if (displayTime) {
+        if (mDisplayTime) {
             canvas.drawText(
                 textTime,
                 50.0f,
