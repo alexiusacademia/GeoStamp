@@ -9,6 +9,14 @@
                 android:key="pref_datetime"
                 android:summary="@string/pref_summary_datetime"
                 android:defaultValue="true" android:icon="@android:drawable/ic_menu_my_calendar"/>
+        <ListPreference
+                android:title="@string/stamp_location"
+                android:entries="@array/stamp_locations"
+                android:entryValues="@array/stamp_locations"
+                android:key="pref_stamp_location"
+                android:summary="@string/pref_summary_stamp_location"
+                android:icon="@android:drawable/ic_menu_mylocation"
+                android:defaultValue="@string/default_value_stamp_location"/>
 
     </PreferenceCategory>
 
