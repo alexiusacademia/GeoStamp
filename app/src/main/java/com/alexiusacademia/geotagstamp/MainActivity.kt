@@ -17,6 +17,7 @@ import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
 import android.content.Context
+import android.content.SharedPreferences
 import android.graphics.*
 import android.net.Uri
 import android.os.Environment
@@ -59,12 +60,18 @@ class MainActivity : AppCompatActivity() {
 
     private var mLocation: Location? = null
 
+    private var mDisplayTime: Boolean = false
+
+    private lateinit var sharedPreferences: SharedPreferences
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
         // Get the default preferences
         PreferenceManager.setDefaultValues(this,
             R.xml.preferences_layout, false)
+
+        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this)
 
         // Define the fused location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
@@ -126,6 +133,14 @@ class MainActivity : AppCompatActivity() {
         binding.btnSettings.setOnClickListener {
             openSettingsActivity()
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+
+        mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
+        Toast.makeText(this, mDisplayTime.toString(), Toast.LENGTH_SHORT).show()
+
     }
 
     /**
