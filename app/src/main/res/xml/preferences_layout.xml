@@ -4,11 +4,11 @@
 
     <PreferenceCategory
             android:title="@string/pref_category_general">
-        <SwitchPreferenceCompat
+        <CheckBoxPreference
                 android:title="@string/pref_show_date_stamp"
                 android:key="pref_datetime"
                 android:summary="@string/pref_summary_datetime"
-                android:defaultValue="true"/>
+                android:defaultValue="true" android:icon="@android:drawable/ic_menu_my_calendar"/>
 
     </PreferenceCategory>
 
