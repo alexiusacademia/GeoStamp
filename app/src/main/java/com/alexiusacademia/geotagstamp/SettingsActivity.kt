@@ -17,8 +17,12 @@ class SettingsActivity : AppCompatActivity() {
             return
         }
 
-        fragmentManager.beginTransaction().
+        /*fragmentManager.beginTransaction().
             add(R.id.frame_settings_fragment_container, SettingsFragment()).
-            commit()
+            commit()*/
+
+        supportFragmentManager.beginTransaction()
+            .replace(R.id.frame_settings_fragment_container, SettingsFragment())
+            .commit()
     }
 }

@@ -16,7 +16,7 @@ class SettingsFragment : PreferenceFragmentCompat() {
     // Replaced the onCreate method because of using the fragment to the existing layout
     // instead of using a separate layout for the fragment
     override fun onCreatePreferences(p0: Bundle?, p1: String?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        // TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
         setPreferencesFromResource(R.xml.preferences_layout, p1)
     }
 }
