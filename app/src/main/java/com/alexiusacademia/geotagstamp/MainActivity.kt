@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     private var mStampLocation: String = ""
     private var mStampLocationsArray = mutableListOf<String>()
     private var mCustomText = mutableListOf<String>()
+    private var mTextSize = 28
     private var mCustomTextSize = 40
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -162,6 +163,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         mCustomTextSize = sharedPreferences.getString("pref_custom_text_size", "40").toInt()
+
+        mTextSize = sharedPreferences.getString("pref_text_size", "28").toInt()
     }
 
     /**
@@ -241,7 +244,7 @@ class MainActivity : AppCompatActivity() {
             var newBitmap = drawText(
                 this,
                 rotatedBitmap,
-                sharedPreferences.getString("pref_custom_text_size", "40").toInt()
+                mTextSize
             )
 
             // Delete the original file saved by the camera
@@ -308,7 +311,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 32): Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 28): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
         var textSizeCustom = textSize
@@ -356,7 +359,7 @@ class MainActivity : AppCompatActivity() {
         bgPaint.style = Paint.Style.FILL
 
         // text size in pixels
-        textPaint.textSize = (textSizeCustom * scale).roundToInt().toFloat()
+        textPaint.textSize = (mTextSize * scale).roundToInt().toFloat()
         textPaintCustom.textSize = (mCustomTextSize * 1.5 * scale).roundToInt().toFloat()
 
         // Font family
