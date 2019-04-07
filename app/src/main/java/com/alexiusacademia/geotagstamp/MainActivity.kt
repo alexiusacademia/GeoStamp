@@ -153,6 +153,9 @@ class MainActivity : AppCompatActivity() {
 
         val customText = sharedPreferences.getString("pref_custom_text", "")
 
+        // Clear the array first
+        mCustomText.clear()
+
         for (line in customText.split("\n")) {
             mCustomText.add(line)
         }
