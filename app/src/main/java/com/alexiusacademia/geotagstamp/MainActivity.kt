@@ -314,13 +314,15 @@ class MainActivity : AppCompatActivity() {
         val resources = context.resources
         val scale = resources.displayMetrics.density
 
-        var bitmapConfig = bitmap.config;
+        var bitmapConfig = bitmap.config
+
         // set default bitmap config if none
         if (bitmapConfig == null) {
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888
         }
-        // resource bitmaps are immutable,
-        // so we need to convert it to mutable one
+
+        // Resource bitmaps are immutable,
+        // so we need to copy to a mutable one.
         var newBitmap = bitmap.copy(bitmapConfig, true)
 
         val canvas = Canvas(newBitmap)
@@ -337,7 +339,14 @@ class MainActivity : AppCompatActivity() {
         // Vertical padding of texts
         var padding = 25f
 
+        // Rectangular height required by the location and time stamp
         var rectHeight = (mTextSize * scale * 2) + (padding * 2) + (padding * 2)
+
+        // Rectangular height required by the custom text
+        var rectHeightCustomText = 2 * padding
+        for (line in mCustomText) {
+            rectHeightCustomText += mCustomTextSize * scale + padding
+        }
 
         var textsArray = mutableListOf<String>()
         textsArray.add(textLat)
@@ -389,9 +398,17 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
+        // Use the larger of the two rectheight
+        var bgHeight = 0f
+        if (rectHeight > rectHeightCustomText) {
+            bgHeight = rectHeight
+        } else {
+            bgHeight = rectHeightCustomText
+        }
+
         canvas.drawRect(0f + stampVerticalLocationFactor,
             0f,
-            rectHeight + stampVerticalLocationFactor,
+            bgHeight + stampVerticalLocationFactor,
             canvas.height.toFloat(),
             bgPaint)
 
