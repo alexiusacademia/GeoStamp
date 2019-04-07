@@ -298,7 +298,7 @@ class MainActivity : AppCompatActivity() {
         val resources = context.resources
         val scale = resources.displayMetrics.density
         var textSizeCustom = textSize
-        var numberOfLines = 2
+
 
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
@@ -319,11 +319,20 @@ class MainActivity : AppCompatActivity() {
         val textLong = "Longitude: " + this.mLong.toString()
         val textTime = mTime
 
+        // Vertical padding of texts
+        var padding = 25f
+
+        var rectHeight = (textSizeCustom * scale * 2) + (padding * 2) + (padding * 2)
+
         var textsArray = mutableListOf<String>()
         textsArray.add(textLat)
         textsArray.add(textLong)
+
         if (mDisplayTime) {
             textsArray.add(textTime)
+
+            // Adjust rectangle height
+            rectHeight += textSizeCustom * scale + padding
         }
 
         textPaint.color = Color.rgb(255, 255, 255)
@@ -341,34 +350,26 @@ class MainActivity : AppCompatActivity() {
         var stampVerticalLocationFactor = 0f
         var stampHorizontalLocationFactor = 0f
 
+        val textLineHeight = textSizeCustom * scale + padding
+
         when (mStampLocation) {
             mStampLocationsArray[0] ->
+                // Lower Left
                 {
                     stampVerticalLocationFactor = 0f
                     stampHorizontalLocationFactor = 0f
                 }
             mStampLocationsArray[1] ->
+                // Upper Left
                 {
-                    stampVerticalLocationFactor = 0f
+                    stampVerticalLocationFactor = canvas.width - (textsArray.size * textLineHeight + 2 * padding)
                     stampHorizontalLocationFactor = 0f
                 }
         }
 
-        // Vertical padding of texts
-        var padding = 25f
-
-        val textLineHeight = textSize * scale + padding
-        var rectHeight = (textPaint.textSize * 2) + (padding * 2) + (padding * 2)
-
-        // Adjust height of rectangle for any text addition
-        if (mDisplayTime) {
-            numberOfLines += 1
-            rectHeight += textPaint.textSize + padding
-        }
-
-        canvas.drawRect(0f,
+        canvas.drawRect(0f + stampVerticalLocationFactor,
             0f,
-            rectHeight,
+            rectHeight + stampVerticalLocationFactor,
             canvas.height.toFloat(),
             bgPaint)
 
