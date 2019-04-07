@@ -6,18 +6,29 @@
     <string name="title_activity_settings">Settings</string>
 
     <!-- Strings related to Settings -->
-    <string name="pref_show_date_stamp">Show Datetime</string>
+    <!-- Preference categories -->
     <string name="pref_category_general">General</string>
-    <string name="pref_summary_datetime">Shows the date and time in the image stamp.</string>
-    <string name="stamp_location">Stamp Location Option</string>
-    <string name="pref_summary_stamp_location">Set the location of the geotag stamp in the image.</string>
-    <string name="default_value_stamp_location">Bottom</string>
     <string name="pref_category_custom_content">Custom Contents</string>
+
+    <!-- Preference Default values -->
+    <string name="default_value_stamp_location">Bottom</string>
+    <string name="pref_text_size_default">28</string>
+    <string name="pref_custom_text_size_default">40</string>
+    <string name="pref_custom_text_default"></string>
+
+    <!-- Preference Keys -->
+
+    <!-- Preference Summaries -->
     <string name="pref_summary_custom_text">Add a custom text to the stamp.</string>
+    <string name="pref_summary_custom_text_size">Set the font size of the custom text.</string>
+    <string name="pref_summary_datetime">Shows the date and time in the image stamp.</string>
+    <string name="pref_summary_stamp_location">Set the location of the geotag stamp in the image.</string>
+
+    <!-- Preference Titles -->
+    <string name="pref_show_date_stamp">Show Datetime</string>
+    <string name="stamp_location">Stamp Location Option</string>
     <string name="pref_title_enable_custom_contents">Enable Custom Contents</string>
     <string name="pref_default_size_custom_text">Font Size</string>
-    <string name="pref_summary_custom_text_size">Set the font size of the custom text.</string>
-    <string name="pref_custom_text_size_default">40</string>
+    <string name="pref_title_text_size">Font Size</string>
     <string name="pref_custom_text_title">Custom Text</string>
-    <string name="pref_custom_text_default"></string>
 </resources>
