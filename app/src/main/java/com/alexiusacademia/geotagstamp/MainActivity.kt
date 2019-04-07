@@ -243,8 +243,7 @@ class MainActivity : AppCompatActivity() {
 
             var newBitmap = drawText(
                 this,
-                rotatedBitmap,
-                mTextSize
+                rotatedBitmap
             )
 
             // Delete the original file saved by the camera
@@ -311,10 +310,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 28): Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
-        var textSizeCustom = textSize
 
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
@@ -339,7 +337,7 @@ class MainActivity : AppCompatActivity() {
         // Vertical padding of texts
         var padding = 25f
 
-        var rectHeight = (textSizeCustom * scale * 2) + (padding * 2) + (padding * 2)
+        var rectHeight = (mTextSize * scale * 2) + (padding * 2) + (padding * 2)
 
         var textsArray = mutableListOf<String>()
         textsArray.add(textLat)
@@ -349,7 +347,7 @@ class MainActivity : AppCompatActivity() {
             textsArray.add(textTime)
 
             // Adjust rectangle height
-            rectHeight += textSizeCustom * scale + padding
+            rectHeight += mTextSize * scale + padding
         }
 
         // Colors
@@ -360,7 +358,7 @@ class MainActivity : AppCompatActivity() {
 
         // text size in pixels
         textPaint.textSize = (mTextSize * scale).roundToInt().toFloat()
-        textPaintCustom.textSize = (mCustomTextSize * 1.5 * scale).roundToInt().toFloat()
+        textPaintCustom.textSize = (mCustomTextSize * scale).roundToInt().toFloat()
 
         // Font family
         val typeFaceCustom = Typeface.create("Times New Roman", Typeface.ITALIC)
@@ -374,7 +372,7 @@ class MainActivity : AppCompatActivity() {
         var stampVerticalLocationFactor = 0f
         var stampHorizontalLocationFactor = 0f
 
-        val textLineHeight = textSizeCustom * scale + padding
+        val textLineHeight = mTextSize * scale + padding
 
         when (mStampLocation) {
             mStampLocationsArray[0] ->
