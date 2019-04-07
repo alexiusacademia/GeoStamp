@@ -15,6 +15,8 @@
     <string name="pref_category_custom_content">Custom Contents</string>
     <string name="pref_summary_custom_text">Add a custom text to the stamp.</string>
     <string name="pref_title_enable_custom_contents">Enable Custom Contents</string>
-    <string name="pref_default_size_custom_text">40</string>
+    <string name="pref_default_size_custom_text">Font Size</string>
     <string name="pref_summary_custom_text_size">Font Size</string>
+    <string name="pref_custom_text_size_default">40</string>
+    <string name="pref_custom_text_title">Custom Text</string>
 </resources>

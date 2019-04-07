@@ -62,7 +62,8 @@ class MainActivity : AppCompatActivity() {
 
     private var mDisplayTime: Boolean = false
     private var mStampLocation: String = ""
-    private var mStampLocationsArray = Array(4){ "" }
+    private var mStampLocationsArray = mutableListOf<String>()
+    private var mCustomText = ""
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -147,8 +148,10 @@ class MainActivity : AppCompatActivity() {
         val stampLocationsArray = resources.getStringArray(R.array.stamp_locations)
 
         for (i in stampLocationsArray.indices) {
-            mStampLocationsArray[i] = stampLocationsArray[i]
+            mStampLocationsArray.add(stampLocationsArray[i])
         }
+
+        mCustomText = sharedPreferences.getString("pref_custom_text", "")
     }
 
     /**
@@ -227,7 +230,8 @@ class MainActivity : AppCompatActivity() {
 
             var newBitmap = drawText(
                 this,
-                rotatedBitmap
+                rotatedBitmap,
+                sharedPreferences.getString("pref_custom_text_size", "40").toInt()
             )
 
             // Delete the original file saved by the camera
@@ -299,7 +303,6 @@ class MainActivity : AppCompatActivity() {
         val scale = resources.displayMetrics.density
         var textSizeCustom = textSize
 
-
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
         if (bitmapConfig == null) {
@@ -312,6 +315,7 @@ class MainActivity : AppCompatActivity() {
         val canvas = Canvas(newBitmap)
 
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
+        val textPaintCustom = Paint(Paint.ANTI_ALIAS_FLAG)
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         bgPaint.style = Paint.Style.FILL
 
@@ -335,12 +339,19 @@ class MainActivity : AppCompatActivity() {
             rectHeight += textSizeCustom * scale + padding
         }
 
+        // Colors
         textPaint.color = Color.rgb(255, 255, 255)
+        textPaintCustom.color = Color.rgb(255, 255, 255)
         bgPaint.color = Color.argb(50, 0, 0, 0)
         bgPaint.style = Paint.Style.FILL
 
         // text size in pixels
         textPaint.textSize = (textSizeCustom * scale).roundToInt().toFloat()
+        textPaintCustom.textSize = (textSizeCustom * 1.5 * scale).roundToInt().toFloat()
+
+        // Font family
+        var typeFaceCustom = Typeface.create("Times New Roman", Typeface.BOLD_ITALIC)
+        textPaintCustom.typeface = typeFaceCustom
 
         // text shadow
         textPaint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
@@ -398,8 +409,14 @@ class MainActivity : AppCompatActivity() {
                     textPaint
                 )
             }
-
         }
+
+        canvas.drawText(
+            mCustomText,
+            canvas.height / 3f,
+            -1 * rectHeight / 2 - stampVerticalLocationFactor,
+            textPaintCustom
+        )
 
         canvas.restore()
 
