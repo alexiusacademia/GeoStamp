@@ -11,5 +11,5 @@
     <string name="pref_summary_datetime">Shows the date and time in the image stamp.</string>
     <string name="stamp_location">Stamp Location Option</string>
     <string name="pref_summary_stamp_location">Set the location of the geotag stamp in the image.</string>
-    <string name="default_value_stamp_location">Lower Left</string>
+    <string name="default_value_stamp_location">Bottom</string>
 </resources>
