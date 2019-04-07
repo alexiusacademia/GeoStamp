@@ -17,7 +17,21 @@
                 android:summary="@string/pref_summary_stamp_location"
                 android:icon="@android:drawable/ic_menu_mylocation"
                 android:defaultValue="@string/default_value_stamp_location"/>
+    </PreferenceCategory>
 
+    <PreferenceCategory
+            android:title="@string/pref_category_custom_content">
+
+        <SwitchPreference
+                android:defaultValue="false"
+                android:title="@string/pref_title_enable_custom_contents" android:key="pref_enable_custom_text"/>
+        <EditTextPreference
+                android:defaultValue="Default value"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:key="pref_custom_text"
+                android:summary="@string/pref_summary_custom_text"
+                android:dependency="pref_enable_custom_text"/>
     </PreferenceCategory>
 
 
