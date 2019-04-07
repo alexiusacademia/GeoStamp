@@ -39,7 +39,8 @@
                 android:singleLine="true"
                 android:title="@string/pref_default_size_custom_text"
                 android:key="pref_custom_text_size"
-                android:dependency="pref_enable_custom_text"/>
+                android:dependency="pref_enable_custom_text"
+                android:inputType="textMultiLine"/>
     </PreferenceCategory>
 
 

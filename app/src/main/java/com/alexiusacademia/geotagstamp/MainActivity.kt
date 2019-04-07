@@ -63,7 +63,7 @@ class MainActivity : AppCompatActivity() {
     private var mDisplayTime: Boolean = false
     private var mStampLocation: String = ""
     private var mStampLocationsArray = mutableListOf<String>()
-    private var mCustomText = ""
+    private var mCustomText = mutableListOf<String>()
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -151,7 +151,11 @@ class MainActivity : AppCompatActivity() {
             mStampLocationsArray.add(stampLocationsArray[i])
         }
 
-        mCustomText = sharedPreferences.getString("pref_custom_text", "")
+        val customText = sharedPreferences.getString("pref_custom_text", "")
+
+        for (line in customText.split("\n")) {
+            mCustomText.add(line)
+        }
     }
 
     /**
@@ -350,7 +354,7 @@ class MainActivity : AppCompatActivity() {
         textPaintCustom.textSize = (textSizeCustom * 1.5 * scale).roundToInt().toFloat()
 
         // Font family
-        var typeFaceCustom = Typeface.create("Times New Roman", Typeface.BOLD_ITALIC)
+        var typeFaceCustom = Typeface.create("Times New Roman", Typeface.ITALIC)
         textPaintCustom.typeface = typeFaceCustom
 
         // text shadow
@@ -411,12 +415,16 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        canvas.drawText(
-            mCustomText,
-            canvas.height / 3f,
-            -1 * rectHeight / 2 - stampVerticalLocationFactor,
-            textPaintCustom
-        )
+        var j = 0
+        for (i in mCustomText.size-1 downTo 0) {
+            canvas.drawText(
+                mCustomText[i],
+                canvas.height / 3f,
+                -1 * j * (textLineHeight + padding) - stampVerticalLocationFactor,
+                textPaintCustom
+            )
+            j += 1
+        }
 
         canvas.restore()
 
