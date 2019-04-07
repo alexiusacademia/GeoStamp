@@ -62,6 +62,7 @@ class MainActivity : AppCompatActivity() {
 
     private var mDisplayTime: Boolean = false
     private var mStampLocation: String = ""
+    private var mStampLocationsArray = Array(4){ "" }
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -142,7 +143,12 @@ class MainActivity : AppCompatActivity() {
         // Retrieve the preferences values
         mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
         mStampLocation = sharedPreferences.getString("pref_stamp_location", "Lower Left")
-        Toast.makeText(this, mStampLocation.toString(), Toast.LENGTH_SHORT).show()
+
+        val stampLocationsArray = resources.getStringArray(R.array.stamp_locations)
+
+        for (i in stampLocationsArray.indices) {
+            mStampLocationsArray[i] = stampLocationsArray[i]
+        }
     }
 
     /**
@@ -288,16 +294,17 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 28): Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 32): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
+        var textSizeCustom = textSize
 
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
         if (bitmapConfig == null) {
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888
         }
-        // resource bitmaps are imutable,
+        // resource bitmaps are immutable,
         // so we need to convert it to mutable one
         var newBitmap = bitmap.copy(bitmapConfig, true)
 
@@ -316,14 +323,24 @@ class MainActivity : AppCompatActivity() {
         bgPaint.style = Paint.Style.FILL
 
         // text size in pixels
-        textPaint.textSize = (textSize * scale).roundToInt().toFloat()
+        textPaint.textSize = (textSizeCustom * scale).roundToInt().toFloat()
 
         // text shadow
         textPaint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
 
+        val padding = 25f
+        val textLineHeight = textSize * scale + padding
+        var rectHeight = (textPaint.textSize * 2) + (padding * 2) + (padding * 2)
+
+        Log.d("Scale", scale.toString())
+        Log.d("Rect height", rectHeight.toString())
+        Log.d("Canvas width", canvas.width.toString())
+        Log.d("Canvas height", canvas.height.toString())
+        Log.d("Text size", textPaint.textSize.toString())
+
         canvas.drawRect(0f,
             0f,
-            canvas.width / 4f,
+            rectHeight,
             canvas.height / 4.5f,
             bgPaint)
 
@@ -340,14 +357,14 @@ class MainActivity : AppCompatActivity() {
         canvas.drawText(
             textLat,
             50.0f,
-            -150.0f,
+            -1 * padding,
             textPaint
         )
 
         canvas.drawText(
             textLong,
             50.0f,
-            -250.0f,
+            -1 * (textLineHeight + padding),
             textPaint
         )
 
