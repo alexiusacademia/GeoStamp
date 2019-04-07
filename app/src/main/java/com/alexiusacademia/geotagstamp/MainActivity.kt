@@ -298,6 +298,7 @@ class MainActivity : AppCompatActivity() {
         val resources = context.resources
         val scale = resources.displayMetrics.density
         var textSizeCustom = textSize
+        var numberOfLines = 2
 
         var bitmapConfig = bitmap.config;
         // set default bitmap config if none
@@ -318,6 +319,13 @@ class MainActivity : AppCompatActivity() {
         val textLong = "Longitude: " + this.mLong.toString()
         val textTime = mTime
 
+        var textsArray = mutableListOf<String>()
+        textsArray.add(textLat)
+        textsArray.add(textLong)
+        if (mDisplayTime) {
+            textsArray.add(textTime)
+        }
+
         textPaint.color = Color.rgb(255, 255, 255)
         bgPaint.color = Color.argb(50, 0, 0, 0)
         bgPaint.style = Paint.Style.FILL
@@ -328,20 +336,40 @@ class MainActivity : AppCompatActivity() {
         // text shadow
         textPaint.setShadowLayer(1f, 0f, 1f, Color.WHITE)
 
-        val padding = 25f
+        // Responsible for placing the text and rectangle
+        // based on the selected location
+        var stampVerticalLocationFactor = 0f
+        var stampHorizontalLocationFactor = 0f
+
+        when (mStampLocation) {
+            mStampLocationsArray[0] ->
+                {
+                    stampVerticalLocationFactor = 0f
+                    stampHorizontalLocationFactor = 0f
+                }
+            mStampLocationsArray[1] ->
+                {
+                    stampVerticalLocationFactor = 0f
+                    stampHorizontalLocationFactor = 0f
+                }
+        }
+
+        // Vertical padding of texts
+        var padding = 25f
+
         val textLineHeight = textSize * scale + padding
         var rectHeight = (textPaint.textSize * 2) + (padding * 2) + (padding * 2)
 
-        Log.d("Scale", scale.toString())
-        Log.d("Rect height", rectHeight.toString())
-        Log.d("Canvas width", canvas.width.toString())
-        Log.d("Canvas height", canvas.height.toString())
-        Log.d("Text size", textPaint.textSize.toString())
+        // Adjust height of rectangle for any text addition
+        if (mDisplayTime) {
+            numberOfLines += 1
+            rectHeight += textPaint.textSize + padding
+        }
 
         canvas.drawRect(0f,
             0f,
             rectHeight,
-            canvas.height / 4.5f,
+            canvas.height.toFloat(),
             bgPaint)
 
         // Save the canvas state, draw text then restore
@@ -353,28 +381,23 @@ class MainActivity : AppCompatActivity() {
             0f
         )
 
-        // Draw the texts to be displayed
-        canvas.drawText(
-            textLat,
-            50.0f,
-            -1 * padding,
-            textPaint
-        )
+        for (i in textsArray.indices) {
+            if (i == 0) {
+                canvas.drawText(
+                    textsArray[i],
+                    50f + stampHorizontalLocationFactor,
+                    -1 * (padding) - stampVerticalLocationFactor,
+                    textPaint
+                )
+            } else {
+                canvas.drawText(
+                    textsArray[i],
+                    50f + stampHorizontalLocationFactor,
+                    -1 * i * (textLineHeight + padding) - stampVerticalLocationFactor,
+                    textPaint
+                )
+            }
 
-        canvas.drawText(
-            textLong,
-            50.0f,
-            -1 * (textLineHeight + padding),
-            textPaint
-        )
-
-        if (mDisplayTime) {
-            canvas.drawText(
-                textTime,
-                50.0f,
-                -350.0f,
-                textPaint
-            )
         }
 
         canvas.restore()
