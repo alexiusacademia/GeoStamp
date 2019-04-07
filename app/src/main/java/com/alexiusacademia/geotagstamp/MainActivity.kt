@@ -405,7 +405,7 @@ class MainActivity : AppCompatActivity() {
                 canvas.drawText(
                     textsArray[i],
                     50f + stampHorizontalLocationFactor,
-                    -1 * (padding) - stampVerticalLocationFactor,
+                    -1 * padding - stampVerticalLocationFactor,
                     textPaint
                 )
             } else {
@@ -418,14 +418,25 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
+        // Draw the custom text
         var j = 0
         for (i in mCustomText.size-1 downTo 0) {
-            canvas.drawText(
-                mCustomText[i],
-                canvas.height / 3f,
-                -1 * j * (textLineHeight + padding) - stampVerticalLocationFactor,
-                textPaintCustom
-            )
+            if (j == 0) {
+                canvas.drawText(
+                    mCustomText[i],
+                    canvas.height / 3f,
+                    -1 * padding - stampVerticalLocationFactor,
+                    textPaintCustom
+                )
+            } else {
+                canvas.drawText(
+                    mCustomText[i],
+                    canvas.height / 3f,
+                    -1 * j * (textLineHeight + padding) - stampVerticalLocationFactor,
+                    textPaintCustom
+                )
+            }
+
             j += 1
         }
 
