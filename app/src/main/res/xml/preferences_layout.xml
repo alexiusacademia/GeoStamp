@@ -26,7 +26,7 @@
                 android:defaultValue="false"
                 android:title="@string/pref_title_enable_custom_contents" android:key="pref_enable_custom_text"/>
         <EditTextPreference
-                android:defaultValue="@string/pref_custom_text_size_default"
+                android:defaultValue="@string/pref_custom_text_default"
                 android:selectAllOnFocus="true"
                 android:singleLine="true"
                 android:key="pref_custom_text"
@@ -40,7 +40,7 @@
                 android:title="@string/pref_default_size_custom_text"
                 android:key="pref_custom_text_size"
                 android:dependency="pref_enable_custom_text"
-                android:inputType="textMultiLine"/>
+                android:inputType="textMultiLine" android:summary="@string/pref_summary_custom_text_size"/>
     </PreferenceCategory>
 
 
