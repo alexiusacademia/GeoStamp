@@ -32,6 +32,12 @@
                 android:key="pref_custom_text"
                 android:summary="@string/pref_summary_custom_text"
                 android:dependency="pref_enable_custom_text"/>
+        <EditTextPreference
+                android:defaultValue="Default value"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:title="@string/pref_default_size_custom_text" android:key="pref_custom_text_size"
+                android:summary="@string/pref_summary_custom_text_size" android:dependency="pref_enable_custom_text"/>
     </PreferenceCategory>
 
 
