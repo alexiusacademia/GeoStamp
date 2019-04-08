@@ -66,6 +66,7 @@ class MainActivity : AppCompatActivity() {
     private var mCustomText = mutableListOf<String>()
     private var mTextSize = 28
     private var mCustomTextSize = 40
+    private var mEnableCustomContent: Boolean = false
 
     private lateinit var sharedPreferences: SharedPreferences
 
@@ -165,6 +166,8 @@ class MainActivity : AppCompatActivity() {
         mCustomTextSize = sharedPreferences.getString("pref_custom_text_size", "40").toInt()
 
         mTextSize = sharedPreferences.getString("pref_text_size", "28").toInt()
+
+
     }
 
     /**
@@ -399,7 +402,7 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Use the larger of the two rectheight
-        var bgHeight = 0f
+        var bgHeight: Float
         if (rectHeight > rectHeightCustomText) {
             bgHeight = rectHeight
         } else {
