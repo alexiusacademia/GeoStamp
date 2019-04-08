@@ -64,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     private var mStampLocation: String = ""
     private var mStampLocationsArray = mutableListOf<String>()
     private var mCustomText = mutableListOf<String>()
+    private var mTextSize = 28
     private var mCustomTextSize = 40
 
     private lateinit var sharedPreferences: SharedPreferences
@@ -162,6 +163,8 @@ class MainActivity : AppCompatActivity() {
         }
 
         mCustomTextSize = sharedPreferences.getString("pref_custom_text_size", "40").toInt()
+
+        mTextSize = sharedPreferences.getString("pref_text_size", "28").toInt()
     }
 
     /**
@@ -240,8 +243,7 @@ class MainActivity : AppCompatActivity() {
 
             var newBitmap = drawText(
                 this,
-                rotatedBitmap,
-                sharedPreferences.getString("pref_custom_text_size", "40").toInt()
+                rotatedBitmap
             )
 
             // Delete the original file saved by the camera
@@ -308,18 +310,19 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
-    private fun drawText(context: Context, bitmap: Bitmap, textSize: Int = 32): Bitmap {
+    private fun drawText(context: Context, bitmap: Bitmap): Bitmap {
         val resources = context.resources
         val scale = resources.displayMetrics.density
-        var textSizeCustom = textSize
 
-        var bitmapConfig = bitmap.config;
+        var bitmapConfig = bitmap.config
+
         // set default bitmap config if none
         if (bitmapConfig == null) {
             bitmapConfig = android.graphics.Bitmap.Config.ARGB_8888
         }
-        // resource bitmaps are immutable,
-        // so we need to convert it to mutable one
+
+        // Resource bitmaps are immutable,
+        // so we need to copy to a mutable one.
         var newBitmap = bitmap.copy(bitmapConfig, true)
 
         val canvas = Canvas(newBitmap)
@@ -336,7 +339,14 @@ class MainActivity : AppCompatActivity() {
         // Vertical padding of texts
         var padding = 25f
 
-        var rectHeight = (textSizeCustom * scale * 2) + (padding * 2) + (padding * 2)
+        // Rectangular height required by the location and time stamp
+        var rectHeight = (mTextSize * scale * 2) + (padding * 2) + (padding * 2)
+
+        // Rectangular height required by the custom text
+        var rectHeightCustomText = 2 * padding
+        for (line in mCustomText) {
+            rectHeightCustomText += mCustomTextSize * scale + padding
+        }
 
         var textsArray = mutableListOf<String>()
         textsArray.add(textLat)
@@ -346,7 +356,7 @@ class MainActivity : AppCompatActivity() {
             textsArray.add(textTime)
 
             // Adjust rectangle height
-            rectHeight += textSizeCustom * scale + padding
+            rectHeight += mTextSize * scale + padding
         }
 
         // Colors
@@ -356,8 +366,8 @@ class MainActivity : AppCompatActivity() {
         bgPaint.style = Paint.Style.FILL
 
         // text size in pixels
-        textPaint.textSize = (textSizeCustom * scale).roundToInt().toFloat()
-        textPaintCustom.textSize = (mCustomTextSize * 1.5 * scale).roundToInt().toFloat()
+        textPaint.textSize = (mTextSize * scale).roundToInt().toFloat()
+        textPaintCustom.textSize = (mCustomTextSize * scale).roundToInt().toFloat()
 
         // Font family
         val typeFaceCustom = Typeface.create("Times New Roman", Typeface.ITALIC)
@@ -371,7 +381,7 @@ class MainActivity : AppCompatActivity() {
         var stampVerticalLocationFactor = 0f
         var stampHorizontalLocationFactor = 0f
 
-        val textLineHeight = textSizeCustom * scale + padding
+        val textLineHeight = mTextSize * scale + padding
 
         when (mStampLocation) {
             mStampLocationsArray[0] ->
@@ -388,9 +398,17 @@ class MainActivity : AppCompatActivity() {
                 }
         }
 
+        // Use the larger of the two rectheight
+        var bgHeight = 0f
+        if (rectHeight > rectHeightCustomText) {
+            bgHeight = rectHeight
+        } else {
+            bgHeight = rectHeightCustomText
+        }
+
         canvas.drawRect(0f + stampVerticalLocationFactor,
             0f,
-            rectHeight + stampVerticalLocationFactor,
+            bgHeight + stampVerticalLocationFactor,
             canvas.height.toFloat(),
             bgPaint)
 
