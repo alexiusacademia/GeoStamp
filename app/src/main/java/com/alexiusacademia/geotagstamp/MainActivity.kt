@@ -167,7 +167,7 @@ class MainActivity : AppCompatActivity() {
 
         mTextSize = sharedPreferences.getString("pref_text_size", "28").toInt()
 
-
+        mEnableCustomContent = sharedPreferences.getBoolean("pref_enable_custom_text", false)
     }
 
     /**
@@ -442,26 +442,28 @@ class MainActivity : AppCompatActivity() {
             }
         }
 
-        // Draw the custom text
-        var j = 0
-        for (i in mCustomText.size-1 downTo 0) {
-            if (j == 0) {
-                canvas.drawText(
-                    mCustomText[i],
-                    canvas.height / 3f,
-                    -1 * padding - stampVerticalLocationFactor,
-                    textPaintCustom
-                )
-            } else {
-                canvas.drawText(
-                    mCustomText[i],
-                    canvas.height / 3f,
-                    -1 * j * (textPaintCustom.textSize + padding) - stampVerticalLocationFactor,
-                    textPaintCustom
-                )
-            }
+        if (mEnableCustomContent) {
+            // Draw the custom text
+            var j = 0
+            for (i in mCustomText.size-1 downTo 0) {
+                if (j == 0) {
+                    canvas.drawText(
+                        mCustomText[i],
+                        canvas.height / 3f,
+                        -1 * padding - stampVerticalLocationFactor,
+                        textPaintCustom
+                    )
+                } else {
+                    canvas.drawText(
+                        mCustomText[i],
+                        canvas.height / 3f,
+                        -1 * j * (textPaintCustom.textSize + padding) - stampVerticalLocationFactor,
+                        textPaintCustom
+                    )
+                }
 
-            j += 1
+                j += 1
+            }
         }
 
         canvas.restore()
