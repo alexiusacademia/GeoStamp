@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">GeoStamp</string>
+    <string name="app_name">GeoTagStamp</string>
     <string name="capture">Capture</string>
     <string name="canvas">Canvas</string>
     <string name="save">Save</string>
