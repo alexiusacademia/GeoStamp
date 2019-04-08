@@ -16,6 +16,7 @@ import android.Manifest.permission.CAMERA
 import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.Manifest.permission.ACCESS_FINE_LOCATION
 import android.Manifest.permission.ACCESS_COARSE_LOCATION
+import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.*
@@ -30,6 +31,7 @@ import android.graphics.Bitmap
 import android.location.Location
 import android.media.ExifInterface
 import android.media.ThumbnailUtils
+import android.os.Build
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
@@ -551,11 +553,19 @@ class MainActivity : AppCompatActivity() {
 
     // Make the photo available in gallery
     private fun galleryAddPic() {
-        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
+        /*Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
             val f = File(mCurrentPhotoPath)
             mediaScanIntent.data = Uri.fromFile(f)
             sendBroadcast(mediaScanIntent)
+        }*/
+
+        if (checkPermission()) {
+            val values = ContentValues()
+            values.put(MediaStore.Images.Media.DATA, mCurrentPhotoPath)
+            values.put(MediaStore.Images.Media.MIME_TYPE, "images/jpeg")
+            contentResolver.insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, values)
         }
+
     }
 
     /**
@@ -595,7 +605,9 @@ class MainActivity : AppCompatActivity() {
         exif.setAttribute(ExifInterface.TAG_GPS_LATITUDE_REF, if (lat < 0) "S" else "N")
         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE, gpsToDMS(lon))
         exif.setAttribute(ExifInterface.TAG_GPS_LONGITUDE_REF, if (lon < 0) "W" else "E")
-        exif.setAttribute(ExifInterface.TAG_COPYRIGHT, copyWrite)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            exif.setAttribute(ExifInterface.TAG_COPYRIGHT, copyWrite)
+        }
         exif.setAttribute(ExifInterface.TAG_DATETIME, timeExif)
 
         exif.saveAttributes()
