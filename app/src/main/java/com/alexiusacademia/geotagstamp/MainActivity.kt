@@ -672,7 +672,12 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun openSettingsActivity() {
+
         val settingsIntent = Intent(this, SettingsActivity::class.java)
         startActivity(settingsIntent)
     }
+
+    /*
+    TODO Resolve the DialogRedirect: Failed to start resolution intent when running on lower api devices
+     */
 }
