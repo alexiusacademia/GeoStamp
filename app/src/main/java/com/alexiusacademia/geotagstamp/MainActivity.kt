@@ -23,7 +23,7 @@ import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
 import android.location.Location
-import android.media.ExifInterface
+import android.support.media.ExifInterface
 import android.media.ThumbnailUtils
 import android.os.Build
 import android.os.Environment.getExternalStoragePublicDirectory
@@ -503,11 +503,8 @@ class MainActivity : AppCompatActivity() {
                     this@MainActivity.runOnUiThread {
                         binding.progressSaving.visibility = View.INVISIBLE
                         Toast.makeText(this,
-                            "Image has been saved to the Gallery!",
+                            "Image has been saved to the Gallery.\nDCIM/GeoTagStamp",
                             Toast.LENGTH_LONG).show()
-
-                        // Tag the photo
-                        tagImage()
 
                         val f = File(mCurrentPhotoPath)
                         if (f.exists()) {
@@ -529,6 +526,9 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    /**
+     * Move the file from private directory to DCIM in the phone storage.
+     */
     private fun moveImageFile() {
         val inputStream = FileInputStream(mCurrentPhotoPath)
 
@@ -568,6 +568,9 @@ class MainActivity : AppCompatActivity() {
             // Delete the original file
             val originalFile = File(mCurrentPhotoPath)
             originalFile.delete()
+
+            // Tag the photo
+            tagImage(outputPath + filename)
 
         } catch (e: SecurityException) {
             Log.d("Error Me", e.message)
