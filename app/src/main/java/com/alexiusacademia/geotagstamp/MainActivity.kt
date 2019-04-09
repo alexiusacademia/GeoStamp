@@ -32,6 +32,7 @@ import android.location.Location
 import android.media.ExifInterface
 import android.media.ThumbnailUtils
 import android.os.Build
+import android.os.Environment.getExternalStoragePublicDirectory
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
@@ -74,7 +75,6 @@ class MainActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-
         // Get the default preferences
         PreferenceManager.setDefaultValues(this,
             R.xml.preferences_layout, false)
@@ -504,7 +504,9 @@ class MainActivity : AppCompatActivity() {
                     // Hide the progress bar after saving the file
                     this@MainActivity.runOnUiThread {
                         binding.progressSaving.visibility = View.INVISIBLE
-                        Toast.makeText(this, "Image has been saved!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this,
+                            "Image has been saved!\nAndroid/data/com.alexiusacademia.geotagstamp",
+                            Toast.LENGTH_LONG).show()
                         galleryAddPic()
 
                         // Tag the photo
@@ -589,6 +591,10 @@ class MainActivity : AppCompatActivity() {
         val degrees = degMinSec[0].toInt().absoluteValue
         val seconds = (degMinSec[2].toDouble() * 10000).roundToInt()
         return "$degrees/1,${degMinSec[1]}/1,$seconds/10000"
+    }
+
+    private fun isExternalStorageWritable() : Boolean {
+        return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
 
     /**
