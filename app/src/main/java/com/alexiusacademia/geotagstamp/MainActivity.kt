@@ -236,15 +236,15 @@ class MainActivity : AppCompatActivity() {
             val bitmap: Bitmap = BitmapFactory.decodeFile(mCurrentPhotoPath)
 
             // Rotate image
-            var matrix = Matrix()
+            val matrix = Matrix()
             matrix.postRotate(90.0f)
 
-            var rotatedBitmap: Bitmap = Bitmap.createBitmap(
+            val rotatedBitmap: Bitmap = Bitmap.createBitmap(
                 bitmap, 0, 0,
                 bitmap.width, bitmap.height, matrix, true
             )
 
-            var newBitmap = drawText(
+            val newBitmap = drawText(
                 this,
                 rotatedBitmap
             )
@@ -258,7 +258,7 @@ class MainActivity : AppCompatActivity() {
             // Display image
             // binding.imageView.setImageBitmap(newBitmap)
             // Create thumbnail
-            var thumb = ThumbnailUtils.extractThumbnail(
+            val thumb = ThumbnailUtils.extractThumbnail(
                 newBitmap,
                 binding.imageView.width,
                 binding.imageView.height
@@ -340,7 +340,7 @@ class MainActivity : AppCompatActivity() {
         val textTime = mTime
 
         // Vertical padding of texts
-        var padding = 25f
+        val padding = 25f
 
         // Rectangular height required by the location and time stamp
         var rectHeight = (mTextSize * scale * 2) + (padding * 2) + (padding * 2)
@@ -351,7 +351,8 @@ class MainActivity : AppCompatActivity() {
             rectHeightCustomText += mCustomTextSize * scale + padding
         }
 
-        var textsArray = mutableListOf<String>()
+        // Text array to be displayed in aligned with the location stamp
+        val textsArray = mutableListOf<String>()
         textsArray.add(textLat)
         textsArray.add(textLong)
 
@@ -402,11 +403,11 @@ class MainActivity : AppCompatActivity() {
         }
 
         // Use the larger of the two rectheight
-        var bgHeight: Float
-        if (rectHeight > rectHeightCustomText) {
-            bgHeight = rectHeight
+        val bgHeight: Float
+        bgHeight = if (rectHeight > rectHeightCustomText) {
+            rectHeight
         } else {
-            bgHeight = rectHeightCustomText
+            rectHeightCustomText
         }
 
         canvas.drawRect(0f + stampVerticalLocationFactor,
@@ -591,15 +592,17 @@ class MainActivity : AppCompatActivity() {
         // Enables regular immersive mode.
         // For "lean back" mode, remove SYSTEM_UI_FLAG_IMMERSIVE.
         // Or for "sticky immersive," replace it with SYSTEM_UI_FLAG_IMMERSIVE_STICKY
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
-                // Set the content to appear under the system bars so that the
-                // content doesn't resize when the system bars hide and show.
-                or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-                or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
-                // Hide the nav bar and status bar
-                or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
-                or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
+            window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_IMMERSIVE
+                    // Set the content to appear under the system bars so that the
+                    // content doesn't resize when the system bars hide and show.
+                    or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                    or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+                    // Hide the nav bar and status bar
+                    or View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
+                    or View.SYSTEM_UI_FLAG_FULLSCREEN)
+        }
     }
 
     // Shows the system bars by removing all the flags
@@ -622,14 +625,6 @@ class MainActivity : AppCompatActivity() {
     /**
      * Calling the exif tagging
      */
-    private fun tagImage() {
-        saveExifData(mCurrentPhotoPath.toString(),
-            mLat,
-            mLong,
-            "syncster31\nalexius.academia@gmail.com",
-            mTimeExif)
-    }
-
     private fun tagImage(filename: String) {
         saveExifData(filename,
             mLat,
