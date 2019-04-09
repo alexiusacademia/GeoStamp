@@ -1,5 +1,6 @@
 package com.alexiusacademia.geotagstamp
 
+import android.Manifest.permission.*
 import android.app.Activity
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -11,19 +12,12 @@ import android.support.v4.app.ActivityCompat
 import android.support.v4.content.ContextCompat
 import android.widget.Toast
 import com.alexiusacademia.geotagstamp.databinding.ActivityMainBinding
-import java.io.File
-import android.Manifest.permission.CAMERA
-import android.Manifest.permission.READ_EXTERNAL_STORAGE
-import android.Manifest.permission.ACCESS_FINE_LOCATION
-import android.Manifest.permission.ACCESS_COARSE_LOCATION
-import android.content.ContentValues
 import android.content.Context
 import android.content.SharedPreferences
 import android.graphics.*
 import android.net.Uri
 import android.os.Environment
 import android.support.v4.content.FileProvider
-import java.io.IOException
 import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
@@ -38,7 +32,7 @@ import android.util.Log
 import android.view.View
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
-import java.io.FileOutputStream
+import java.io.*
 import kotlin.math.absoluteValue
 
 
@@ -191,6 +185,10 @@ class MainActivity : AppCompatActivity() {
                 ContextCompat.checkSelfPermission(
                     this,
                     android.Manifest.permission.ACCESS_COARSE_LOCATION
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this,
+                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED)
     }
 
@@ -200,7 +198,7 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermission() {
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(READ_EXTERNAL_STORAGE, CAMERA, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
+            arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, CAMERA, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
             PERMISSION_REQUEST_CODE
         )
     }
@@ -505,22 +503,78 @@ class MainActivity : AppCompatActivity() {
                     this@MainActivity.runOnUiThread {
                         binding.progressSaving.visibility = View.INVISIBLE
                         Toast.makeText(this,
-                            "Image has been saved!\nAndroid/data/com.alexiusacademia.geotagstamp",
+                            "Image has been saved to the Gallery!",
                             Toast.LENGTH_LONG).show()
-                        galleryAddPic()
 
                         // Tag the photo
                         tagImage()
+
+                        val f = File(mCurrentPhotoPath)
+                        if (f.exists()) {
+                            moveImageFile()
+                        } else {
+                            Log.d("File Not Found", mCurrentPhotoPath + " not found!")
+                        }
                     }
                 }).start()
             } catch (e: Exception) {
                 e.printStackTrace()
                 Log.i(null, "Save file error!")
             }
+
         } else {
             Toast.makeText(this,
                 "There is no available image to tag yet.\nPlease take a picture.",
                 Toast.LENGTH_LONG).show()
+        }
+    }
+
+    private fun moveImageFile() {
+        val inputStream = FileInputStream(mCurrentPhotoPath)
+
+        val filename = mCurrentPhotoPath!!
+            .split("/")[mCurrentPhotoPath?.split("/")!!.size - 1]
+
+        val outputPath = getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).toString() + "/GeoTagStamp/"
+
+
+        val dir = File(outputPath)
+        if (!dir.exists()) {
+            if (dir.mkdirs()) {
+
+            } else {
+                Log.d("Create Dir", "Error creating directory!")
+            }
+        }
+
+        val buffer =  ByteArray(1024)
+        var read : Int
+
+        try {
+            val outputStream = FileOutputStream(outputPath + filename)
+
+            while (true) {
+                read = inputStream.read(buffer)
+
+                if (read <= 0) {
+                    break
+                }
+
+                outputStream.write(buffer, 0, read)
+            }
+
+            outputStream.close()
+
+            // Delete the original file
+            val originalFile = File(mCurrentPhotoPath)
+            originalFile.delete()
+
+        } catch (e: SecurityException) {
+            Log.d("Error Me", e.message)
+        } catch (e: FileNotFoundException) {
+            Log.d("Error Me", e.message)
+        } catch (e: java.lang.Exception) {
+            Log.d("Error Me", e.message)
         }
 
     }
@@ -555,19 +609,11 @@ class MainActivity : AppCompatActivity() {
 
     // Make the photo available in gallery
     private fun galleryAddPic() {
-        /*Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
+        Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE).also { mediaScanIntent ->
             val f = File(mCurrentPhotoPath)
             mediaScanIntent.data = Uri.fromFile(f)
             sendBroadcast(mediaScanIntent)
-        }*/
-
-        if (checkPermission()) {
-            val values = ContentValues()
-            values.put(MediaStore.Images.Media.DATA, mCurrentPhotoPath)
-            values.put(MediaStore.Images.Media.MIME_TYPE, "images/jpeg")
-            contentResolver.insert(MediaStore.Images.Media.INTERNAL_CONTENT_URI, values)
         }
-
     }
 
     /**
@@ -575,6 +621,14 @@ class MainActivity : AppCompatActivity() {
      */
     private fun tagImage() {
         saveExifData(mCurrentPhotoPath.toString(),
+            mLat,
+            mLong,
+            "syncster31\nalexius.academia@gmail.com",
+            mTimeExif)
+    }
+
+    private fun tagImage(filename: String) {
+        saveExifData(filename,
             mLat,
             mLong,
             "syncster31\nalexius.academia@gmail.com",
