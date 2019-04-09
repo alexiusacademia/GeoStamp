@@ -4,4 +4,5 @@
     <dimen name="btn_dim">50dp</dimen>
     <dimen name="btn_padding_side">20dp</dimen>
     <dimen name="preference_padding">0dp</dimen>
+    <dimen name="btn_margin_side">5dp</dimen>
 </resources>
