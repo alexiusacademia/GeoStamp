@@ -571,6 +571,8 @@ class MainActivity : AppCompatActivity() {
             originalFile.delete()
 
             // Tag the photo
+            // Might show a few seconds of delay when the photo taken is opened
+            // immediately
             tagImage(outputPath + filename)
 
         } catch (e: SecurityException) {
@@ -645,6 +647,10 @@ class MainActivity : AppCompatActivity() {
         return "$degrees/1,${degMinSec[1]}/1,$seconds/10000"
     }
 
+    /**
+     * Check the availability of the external storage
+     * for writing.
+     */
     private fun isExternalStorageWritable() : Boolean {
         return Environment.getExternalStorageState() == Environment.MEDIA_MOUNTED
     }
@@ -671,6 +677,9 @@ class MainActivity : AppCompatActivity() {
         exif.saveAttributes()
     }
 
+    /**
+     * Open the settings screen.
+     */
     private fun openSettingsActivity() {
 
         val settingsIntent = Intent(this, SettingsActivity::class.java)
