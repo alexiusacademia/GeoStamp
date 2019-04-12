@@ -328,8 +328,10 @@ class MainActivity : AppCompatActivity() {
         // so we need to copy to a mutable one.
         var newBitmap = bitmap.copy(bitmapConfig, true)
 
+        // Creates new canvas
         val canvas = Canvas(newBitmap)
 
+        // Create paints
         val textPaint = Paint(Paint.ANTI_ALIAS_FLAG)
         val textPaintCustom = Paint(Paint.ANTI_ALIAS_FLAG)
         val bgPaint = Paint(Paint.ANTI_ALIAS_FLAG)
