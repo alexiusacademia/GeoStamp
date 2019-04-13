@@ -89,7 +89,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         binding.btnCapture.setOnClickListener {
             if (checkPermission()) {
-                fusedLocationClient.lastLocation
+                /*fusedLocationClient.lastLocation
                     .addOnSuccessListener {
                         if (it != null) {
                             this.mLat = it.latitude
@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), LocationListener {
                             Log.d("Location message: ", "Cannot access location!")
                         }
                     }
-
+                */
                 binding.imageView.setImageBitmap(null)
 
                 takePicture()
