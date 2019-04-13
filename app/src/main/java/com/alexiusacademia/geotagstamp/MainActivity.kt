@@ -23,11 +23,14 @@ import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
 import android.location.Location
+import android.location.LocationListener
+import android.location.LocationManager
 import android.support.media.ExifInterface
 import android.media.ThumbnailUtils
 import android.os.Build
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.preference.PreferenceManager
+import android.provider.Settings
 import android.util.Log
 import android.view.View
 import android.widget.ImageView
@@ -37,8 +40,8 @@ import java.io.*
 import kotlin.math.absoluteValue
 
 
-class MainActivity : AppCompatActivity() {
-
+@Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
+class MainActivity : AppCompatActivity(), LocationListener {
     private lateinit var binding: ActivityMainBinding
 
     val REQUEST_IMAGE_CAPTURE = 1
@@ -115,6 +118,22 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    override fun onProviderEnabled(provider: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onProviderDisabled(provider: String?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onLocationChanged(location: Location?) {
+
+    }
+
     override fun onResume() {
         super.onResume()
 
@@ -133,6 +152,13 @@ class MainActivity : AppCompatActivity() {
                     Log.d("Location message: ", "Error trying to get last gps location.")
                 }
 
+            var service : LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
+            var enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER)
+            if (!enabled) {
+                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
+                startActivity(intent)
+            }
+
             binding.textWaiting.visibility = View.GONE
             binding.btnCapture.visibility = View.VISIBLE
 
@@ -145,7 +171,7 @@ class MainActivity : AppCompatActivity() {
 
         // Retrieve the preferences values
         mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
-        mStampLocation = sharedPreferences.getString("pref_stamp_location", "Lower Left")
+        mStampLocation = sharedPreferences.getString("pref_stamp_location", "Lower Left").toString()
 
         val stampLocationsArray = resources.getStringArray(R.array.stamp_locations)
 
@@ -173,23 +199,17 @@ class MainActivity : AppCompatActivity() {
      * Checks if permissions has been granted.
      */
     private fun checkPermission(): Boolean {
-        return (ContextCompat.checkSelfPermission(
-            this, CAMERA) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this,
-                    READ_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this, ACCESS_FINE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this,
-                    ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this,
-                    WRITE_EXTERNAL_STORAGE
-                ) == PackageManager.PERMISSION_GRANTED)
+        return (ContextCompat.checkSelfPermission(this, CAMERA)
+                == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, READ_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, ACCESS_FINE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE)
+                == PackageManager.PERMISSION_GRANTED
+                // && ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION)
+                // == PackageManager.PERMISSION_GRANTED
+                )
     }
 
     /**
@@ -198,7 +218,12 @@ class MainActivity : AppCompatActivity() {
     private fun requestPermission() {
         ActivityCompat.requestPermissions(
             this,
-            arrayOf(READ_EXTERNAL_STORAGE, WRITE_EXTERNAL_STORAGE, CAMERA, ACCESS_FINE_LOCATION, ACCESS_COARSE_LOCATION),
+            arrayOf(READ_EXTERNAL_STORAGE,
+                WRITE_EXTERNAL_STORAGE,
+                CAMERA,
+                ACCESS_FINE_LOCATION
+                // , ACCESS_COARSE_LOCATION
+            ),
             PERMISSION_REQUEST_CODE
         )
     }
