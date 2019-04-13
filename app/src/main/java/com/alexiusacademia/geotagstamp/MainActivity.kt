@@ -2,6 +2,7 @@ package com.alexiusacademia.geotagstamp
 
 import android.Manifest.permission.*
 import android.app.Activity
+import android.app.PendingIntent
 import android.content.Intent
 import android.content.pm.PackageManager
 import android.databinding.DataBindingUtil
@@ -22,11 +23,14 @@ import java.text.SimpleDateFormat
 import java.util.*
 import kotlin.math.roundToInt
 import android.graphics.Bitmap
+import android.location.Criteria
 import android.location.Location
 import android.location.LocationListener
 import android.location.LocationManager
 import android.support.media.ExifInterface
 import android.media.ThumbnailUtils
+import android.nfc.Tag
+import android.opengl.Visibility
 import android.os.Build
 import android.os.Environment.getExternalStoragePublicDirectory
 import android.preference.PreferenceManager
@@ -35,6 +39,7 @@ import android.util.Log
 import android.view.View
 import android.widget.ImageView
 import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import java.io.*
 import kotlin.math.absoluteValue
@@ -42,6 +47,7 @@ import kotlin.math.absoluteValue
 
 @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
 class MainActivity : AppCompatActivity(), LocationListener {
+
     private lateinit var binding: ActivityMainBinding
 
     val REQUEST_IMAGE_CAPTURE = 1
@@ -79,6 +85,24 @@ class MainActivity : AppCompatActivity(), LocationListener {
 
         // Define the fused location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (checkPermission()) {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener {
+                    if (it != null) {
+                        mLat = it.latitude
+                        mLong = it.longitude
+                        binding.btnCapture.visibility = View.VISIBLE
+                        binding.textWaiting.visibility = View.INVISIBLE
+                    } else {
+                        Log.d("Location Error", "Location null")
+                        binding.btnCapture.visibility = View.INVISIBLE
+                        binding.textWaiting.visibility = View.VISIBLE
+                    }
+                }
+        } else {
+            requestPermission()
+        }
 
         // Create data binding
         binding = DataBindingUtil.setContentView(this, R.layout.activity_main)
@@ -118,6 +142,14 @@ class MainActivity : AppCompatActivity(), LocationListener {
         }
     }
 
+    override fun onLocationChanged(location: Location?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     override fun onProviderEnabled(provider: String?) {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
@@ -126,48 +158,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
         TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
     }
 
-    override fun onStatusChanged(provider: String?, status: Int, extras: Bundle?) {
-        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    override fun onLocationChanged(location: Location?) {
-
-    }
-
     override fun onResume() {
         super.onResume()
-
-        if (checkPermission()) {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener {
-                    if (it != null) {
-                        this.mLat = it.latitude
-                        this.mLong = it.longitude
-
-                    } else {
-                        Log.d("Location message: ", "Cannot access location!")
-                    }
-                }
-                .addOnFailureListener{
-                    Log.d("Location message: ", "Error trying to get last gps location.")
-                }
-
-            var service : LocationManager = getSystemService(Context.LOCATION_SERVICE) as LocationManager
-            var enabled = service.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            if (!enabled) {
-                val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS)
-                startActivity(intent)
-            }
-
-            binding.textWaiting.visibility = View.GONE
-            binding.btnCapture.visibility = View.VISIBLE
-
-        } else {
-            requestPermission()
-            if (checkPermission()) {
-                binding.textWaiting.visibility = View.GONE
-            }
-        }
 
         // Retrieve the preferences values
         mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
@@ -207,8 +199,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(this, WRITE_EXTERNAL_STORAGE)
                 == PackageManager.PERMISSION_GRANTED
-                // && ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION)
-                // == PackageManager.PERMISSION_GRANTED
+                && ContextCompat.checkSelfPermission(this, ACCESS_COARSE_LOCATION)
+                == PackageManager.PERMISSION_GRANTED
                 )
     }
 
@@ -221,8 +213,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
             arrayOf(READ_EXTERNAL_STORAGE,
                 WRITE_EXTERNAL_STORAGE,
                 CAMERA,
-                ACCESS_FINE_LOCATION
-                // , ACCESS_COARSE_LOCATION
+                ACCESS_FINE_LOCATION,
+                ACCESS_COARSE_LOCATION
             ),
             PERMISSION_REQUEST_CODE
         )
@@ -299,6 +291,12 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 binding.btnSave.visibility = View.VISIBLE
             }
 
+            if (checkPermission()) {
+                fusedLocationClient.lastLocation.addOnSuccessListener {
+                    mLat = it.latitude
+                    mLong = it.longitude
+                }
+            }
         } else {
             Toast.makeText(this, "Capture cancelled.", Toast.LENGTH_SHORT).show()
         }
