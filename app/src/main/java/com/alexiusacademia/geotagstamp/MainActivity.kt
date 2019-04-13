@@ -120,6 +120,8 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
 
+                binding.imageView.setImageBitmap(null)
+
                 takePicture()
             } else {
                 requestPermission()
