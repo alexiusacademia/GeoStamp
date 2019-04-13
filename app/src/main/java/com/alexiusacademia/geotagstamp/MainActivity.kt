@@ -84,27 +84,6 @@ class MainActivity : AppCompatActivity() {
         // is waiting for the GPS data
         binding.textWaiting.text = "Waiting for GPS data..."
 
-        if (checkPermission()) {
-            fusedLocationClient.lastLocation
-                .addOnSuccessListener {
-                    if (it != null) {
-                        this.mLat = it.latitude
-                        this.mLong = it.longitude
-                    } else {
-                        Log.d("Location message: ", "Cannot access location!")
-                    }
-                }
-
-            binding.textWaiting.visibility = View.GONE
-            binding.btnCapture.visibility = View.VISIBLE
-
-        } else {
-            requestPermission()
-            if (checkPermission()) {
-                binding.textWaiting.visibility = View.GONE
-            }
-        }
-
         binding.btnCapture.setOnClickListener {
             if (checkPermission()) {
                 fusedLocationClient.lastLocation
@@ -139,6 +118,31 @@ class MainActivity : AppCompatActivity() {
     override fun onResume() {
         super.onResume()
 
+        if (checkPermission()) {
+            fusedLocationClient.lastLocation
+                .addOnSuccessListener {
+                    if (it != null) {
+                        this.mLat = it.latitude
+                        this.mLong = it.longitude
+
+                    } else {
+                        Log.d("Location message: ", "Cannot access location!")
+                    }
+                }
+                .addOnFailureListener{
+                    Log.d("Location message: ", "Error trying to get last gps location.")
+                }
+
+            binding.textWaiting.visibility = View.GONE
+            binding.btnCapture.visibility = View.VISIBLE
+
+        } else {
+            requestPermission()
+            if (checkPermission()) {
+                binding.textWaiting.visibility = View.GONE
+            }
+        }
+
         // Retrieve the preferences values
         mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
         mStampLocation = sharedPreferences.getString("pref_stamp_location", "Lower Left")
@@ -170,24 +174,21 @@ class MainActivity : AppCompatActivity() {
      */
     private fun checkPermission(): Boolean {
         return (ContextCompat.checkSelfPermission(
-            this,
-            android.Manifest.permission.CAMERA
-        ) == PackageManager.PERMISSION_GRANTED &&
+            this, CAMERA) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(
                     this,
-                    android.Manifest.permission.READ_EXTERNAL_STORAGE
+                    READ_EXTERNAL_STORAGE
+                ) == PackageManager.PERMISSION_GRANTED &&
+                ContextCompat.checkSelfPermission(
+                    this, ACCESS_FINE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(
                     this,
-                    android.Manifest.permission.ACCESS_FINE_LOCATION
+                    ACCESS_COARSE_LOCATION
                 ) == PackageManager.PERMISSION_GRANTED &&
                 ContextCompat.checkSelfPermission(
                     this,
-                    android.Manifest.permission.ACCESS_COARSE_LOCATION
-                ) == PackageManager.PERMISSION_GRANTED &&
-                ContextCompat.checkSelfPermission(
-                    this,
-                    android.Manifest.permission.WRITE_EXTERNAL_STORAGE
+                    WRITE_EXTERNAL_STORAGE
                 ) == PackageManager.PERMISSION_GRANTED)
     }
 
