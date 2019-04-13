@@ -56,8 +56,6 @@ class MainActivity : AppCompatActivity() {
 
     private var mFinalImage: Bitmap? = null
 
-    private var mLocation: Location? = null
-
     private var mDisplayTime: Boolean = false
     private var mStampLocation: String = ""
     private var mStampLocationsArray = mutableListOf<String>()
@@ -92,7 +90,6 @@ class MainActivity : AppCompatActivity() {
                     if (it != null) {
                         this.mLat = it.latitude
                         this.mLong = it.longitude
-                        mLocation = it
                     } else {
                         Log.d("Location message: ", "Cannot access location!")
                     }
@@ -115,7 +112,6 @@ class MainActivity : AppCompatActivity() {
                         if (it != null) {
                             this.mLat = it.latitude
                             this.mLong = it.longitude
-                            mLocation = it
                         } else {
                             Log.d("Location message: ", "Cannot access location!")
                         }
