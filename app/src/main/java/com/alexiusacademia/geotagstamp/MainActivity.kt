@@ -30,6 +30,7 @@ import android.os.Environment.getExternalStoragePublicDirectory
 import android.preference.PreferenceManager
 import android.util.Log
 import android.view.View
+import android.widget.ImageView
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import java.io.*
@@ -266,6 +267,7 @@ class MainActivity : AppCompatActivity() {
                 binding.imageView.height
             )
 
+            binding.imageView.scaleType = ImageView.ScaleType.FIT_XY
             binding.imageView.setImageBitmap(thumb)
 
             if (binding.textWaiting.visibility == View.VISIBLE) {
