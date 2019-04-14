@@ -244,6 +244,9 @@ class MainActivity : AppCompatActivity(), LocationListener {
         // Before starting the camera, make sure to empty the mFinalImage
         mFinalImage = null
 
+        // Remove the content of the image view
+        binding.imageView.setImageBitmap(null)
+
         // Save the image to the specified path
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
 
