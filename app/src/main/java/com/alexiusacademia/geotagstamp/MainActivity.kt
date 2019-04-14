@@ -42,6 +42,7 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationServices
 import java.io.*
+import java.text.DateFormat.getDateTimeInstance
 import kotlin.math.absoluteValue
 
 
@@ -716,7 +717,11 @@ class MainActivity : AppCompatActivity(), LocationListener {
      * Open the settings screen.
      */
     private fun openSettingsActivity() {
+        // Clear generated image bitmap
+        mFinalImage = null
+        binding.imageView.setImageBitmap(null)
 
+        // Open the settings screen
         val settingsIntent = Intent(this, SettingsActivity::class.java)
         startActivity(settingsIntent)
     }
