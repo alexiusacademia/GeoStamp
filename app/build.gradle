@@ -10,8 +10,8 @@ android {
         applicationId "com.alexiusacademia.geotagstamp"
         minSdkVersion 16
         targetSdkVersion 28
-        versionCode 6
-        versionName "1.1.3"
+        versionCode 7
+        versionName "1.1.4"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
     }

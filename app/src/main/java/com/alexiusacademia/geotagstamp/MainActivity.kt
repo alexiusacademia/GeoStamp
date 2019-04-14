@@ -141,6 +141,16 @@ class MainActivity : AppCompatActivity(), LocationListener {
         binding.btnSettings.setOnClickListener {
             openSettingsActivity()
         }
+
+        binding.imageView.setOnClickListener {
+            hideSystemUI()
+        }
+
+        // Retrieve the string array resource
+        val stampLocationsArray = resources.getStringArray(R.array.stamp_locations)
+        for (i in stampLocationsArray.indices) {
+            mStampLocationsArray.add(stampLocationsArray[i])
+        }
     }
 
     override fun onLocationChanged(location: Location?) {
@@ -165,12 +175,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
         // Retrieve the preferences values
         mDisplayTime = sharedPreferences.getBoolean("pref_datetime", false)
         mStampLocation = sharedPreferences.getString("pref_stamp_location", "Lower Left").toString()
-
-        val stampLocationsArray = resources.getStringArray(R.array.stamp_locations)
-
-        for (i in stampLocationsArray.indices) {
-            mStampLocationsArray.add(stampLocationsArray[i])
-        }
 
         val customText = sharedPreferences.getString("pref_custom_text", "")
 
@@ -291,8 +295,8 @@ class MainActivity : AppCompatActivity(), LocationListener {
                 binding.imageView.height
             )
 
-            binding.imageView.scaleType = ImageView.ScaleType.FIT_XY
             binding.imageView.setImageBitmap(thumb)
+            binding.imageView.scaleType = ImageView.ScaleType.FIT_XY
 
             if (binding.textWaiting.visibility == View.VISIBLE) {
                 binding.textWaiting.visibility = View.GONE
