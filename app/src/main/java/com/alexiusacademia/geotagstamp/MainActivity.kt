@@ -142,10 +142,6 @@ class MainActivity : AppCompatActivity(), LocationListener {
             openSettingsActivity()
         }
 
-        binding.imageView.setOnClickListener {
-            hideSystemUI()
-        }
-
         // Retrieve the string array resource
         val stampLocationsArray = resources.getStringArray(R.array.stamp_locations)
         for (i in stampLocationsArray.indices) {
