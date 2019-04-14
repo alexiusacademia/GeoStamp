@@ -241,7 +241,13 @@ class MainActivity : AppCompatActivity(), LocationListener {
         val currDateExif = sdf2.format(date)
         mTimeExif = currDateExif.toString()
 
+        // Before starting the camera, make sure to empty the mFinalImage
+        mFinalImage = null
+
+        // Save the image to the specified path
         intent.putExtra(MediaStore.EXTRA_OUTPUT, uri)
+
+        // Start the default camera
         startActivityForResult(intent, REQUEST_IMAGE_CAPTURE)
     }
 
